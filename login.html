@@ -8,18 +8,48 @@
 <style>
 body {
   background: radial-gradient(circle at top, #0b0f1a, #000);
+  overflow: hidden;
 }
+
+/* glow */
 .glow {
   text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+}
+
+/* WOAH text */
+.woah-text {
+  font-size: 40px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #00ccff, #00ff88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 10px #00ccff,
+    0 0 20px #00ff88,
+    0 0 40px #00ff88;
+}
+
+/* matrix canvas */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 </style>
 </head>
 
 <body class="flex items-center justify-center h-screen text-white">
 
-<div class="bg-[#111827] p-8 rounded-xl w-96 shadow-lg border border-green-500/20">
+<!-- MATRIX BACKGROUND -->
+<canvas id="matrix"></canvas>
 
-<h1 class="text-2xl font-bold mb-6 text-center glow">WoahGen Login</h1>
+<!-- LOGIN BOX -->
+<div class="bg-[#111827]/90 backdrop-blur p-8 rounded-xl w-96 shadow-lg border border-green-500/20">
+
+<h1 class="woah-text text-center mb-4">WOAH SERVICES</h1>
+
+<h2 class="text-xl font-bold mb-6 text-center glow">Login</h2>
 
 <input id="email" type="text" placeholder="Email"
 class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
@@ -27,21 +57,30 @@ class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
 <input id="password" type="password" placeholder="Password"
 class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
 
+<!-- USER LOGIN -->
 <button onclick="login()"
-class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded">
+class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded hover:scale-105 transition">
 Login
 </button>
 
-<p class="text-sm text-gray-400 mt-4 text-center">
-No account? <a href="signup.html" class="text-green-400">Sign up</a>
-</p>
+<!-- EXTRA BUTTONS -->
+<div class="mt-4 flex gap-2">
 
-<p class="text-sm text-center mt-2">
-<a href="admin.html" class="text-purple-400">Admin Login</a>
-</p>
+<button onclick="window.location.href='signup.html'"
+class="w-1/2 bg-green-500 p-2 rounded hover:scale-105 transition">
+Sign Up
+</button>
+
+<button onclick="window.location.href='admin.html'"
+class="w-1/2 bg-purple-600 p-2 rounded hover:scale-105 transition">
+Admin
+</button>
 
 </div>
 
+</div>
+
+<!-- LOGIN SCRIPT -->
 <script>
 function login() {
   let email = document.getElementById("email").value;
@@ -56,6 +95,43 @@ function login() {
     alert("Invalid login");
   }
 }
+</script>
+
+<!-- MATRIX RAIN SCRIPT -->
+<script>
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const letters = "01WOAH";
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+
+const drops = [];
+
+for (let x = 0; x < columns; x++) drops[x] = 1;
+
+function draw() {
+  ctx.fillStyle = "rgba(0,0,0,0.05)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#00ff88";
+  ctx.font = fontSize + "px monospace";
+
+  for (let i = 0; i < drops.length; i++) {
+    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+      drops[i] = 0;
+
+    drops[i]++;
+  }
+}
+
+setInterval(draw, 33);
 </script>
 
 </body>
