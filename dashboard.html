@@ -186,10 +186,20 @@ if (!user && admin !== "true") {
   window.location.href = "login.html";
 }
 
-// SHOW ADMIN BUTTON
-if (admin === "true") {
-  document.getElementById("stockBtn").classList.remove("hidden");
-}
+// SHOW ADMIN BUTTON (SAFE)
+window.onload = () => {
+  let stockBtn = document.getElementById("stockBtn");
+
+  if (admin === "true" && stockBtn) {
+    stockBtn.classList.remove("hidden");
+  }
+
+  // LOAD STATS SAFELY
+  let totalGen = document.getElementById("totalGen");
+  if (totalGen) {
+    totalGen.innerText = localStorage.getItem("generated") || 0;
+  }
+};
 
 // PAGE SWITCH
 function showPage(page) {
@@ -273,9 +283,6 @@ function generateAccount() {
   document.getElementById("totalGen").innerText = total;
 }
 
-// LOAD STATS
-document.getElementById("totalGen").innerText =
-  localStorage.getItem("generated") || 0;
 
 // ================= PASSWORD =================
 
