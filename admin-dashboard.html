@@ -9,8 +9,13 @@
 body { background:#050a14; }
 .sidebar { background:#070d18; }
 .card { background:#0b1220; border-radius:16px; }
-::-webkit-scrollbar { width:6px; }
-::-webkit-scrollbar-thumb { background:#7c3aed; border-radius:10px; }
+.logo {
+  font-size:20px;
+  font-weight:900;
+  background:linear-gradient(90deg,#00ccff,#00ff88);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
 </style>
 </head>
 
@@ -19,13 +24,13 @@ body { background:#050a14; }
 <!-- SIDEBAR -->
 <div class="sidebar w-64 h-screen p-5 flex flex-col">
 
-<h1 class="text-xl font-bold mb-6 text-purple-400">WoahGen</h1>
+<h1 class="logo mb-6">WOAHGEN ADMIN</h1>
 
-<p class="text-gray-400 text-xs mb-2 uppercase">Admin</p>
+<p class="text-gray-500 text-xs mb-2 uppercase">Admin</p>
 
-<button onclick="showPage('overview')" class="p-2 hover:bg-[#111827] rounded text-left">🛡️ Overview</button>
-<button onclick="showPage('keys')" class="p-2 hover:bg-[#111827] rounded text-left">🔑 Keys</button>
-<button onclick="showPage('stock')" class="p-2 hover:bg-[#111827] rounded text-left">📦 Stock</button>
+<button onclick="showPage('overview')" class="p-2 hover:bg-white/10 rounded">Overview</button>
+<button onclick="showPage('keys')" class="p-2 hover:bg-white/10 rounded">Keys</button>
+<button onclick="showPage('stock')" class="p-2 hover:bg-white/10 rounded">Stock</button>
 
 <div class="mt-auto">
 <button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
@@ -34,12 +39,12 @@ body { background:#050a14; }
 </div>
 
 <!-- MAIN -->
-<div class="flex-1 p-6 overflow-y-auto h-screen">
+<div class="flex-1 p-6">
 
 <!-- OVERVIEW -->
 <div id="overviewPage">
 <h1 class="text-3xl mb-6">Admin Overview</h1>
-<p class="text-gray-400">Welcome back admin 👑</p>
+<p class="text-gray-400">Manage your SaaS system 🔥</p>
 </div>
 
 <!-- KEYS -->
@@ -102,17 +107,16 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🔐 AUTH CHECK
+// 🔐 AUTH
 onAuthStateChanged(auth, (user)=>{
   if(!user) return location.href="login.html";
-
   if(user.email !== "pattonayinde27@gmail.com"){
     return location.href="dashboard.html";
   }
 });
 
-// NAV FIX
-function showPage(page){
+// NAV
+window.showPage = (page)=>{
   ["overview","keys","stock"].forEach(p=>{
     document.getElementById(p+"Page").classList.add("hidden");
   });
@@ -120,58 +124,64 @@ function showPage(page){
   document.getElementById(page+"Page").classList.remove("hidden");
 
   if(page === "keys") loadKeys();
-}
+};
 
-window.showPage = showPage;
+// DEFAULT PAGE
+showPage("overview");
 
-// LOAD DEFAULT PAGE
-window.addEventListener("load", ()=>{
-  showPage("overview");
-});
-
-// 🔑 CREATE KEY (WORKING)
+// 🔑 BETTER KEY GENERATOR
 window.createKey = async ()=>{
-  let key = "WOAH-GEN-" + Math.floor(1000 + Math.random()*9000);
+  let key = "WOAH-GEN-" + Math.random().toString(36).substring(2,8).toUpperCase();
 
   await setDoc(doc(db,"keys",key),{
     used:false,
     createdAt:Date.now()
   });
 
-  document.getElementById("newKey").innerText = "Generated: " + key;
-
+  document.getElementById("newKey").innerText = key;
   loadKeys();
 };
 
-// 🔑 LOAD KEYS (WORKING)
+// 🔑 LOAD KEYS
 async function loadKeys(){
   const snapshot = await getDocs(collection(db,"keys"));
-
   const list = document.getElementById("keyList");
+
   list.innerHTML = "";
 
   snapshot.forEach(docSnap=>{
     let data = docSnap.data();
 
     let div = document.createElement("div");
-    div.className = "flex justify-between bg-black/40 p-2 rounded";
+    div.className = "flex justify-between items-center bg-black/40 p-2 rounded";
 
     div.innerHTML = `
-      <span>${docSnap.id} ${data.used ? "(USED)" : ""}</span>
-      <button onclick="deleteKey('${docSnap.id}')" class="text-red-400">Delete</button>
+      <span class="${data.used ? 'text-red-400' : 'text-green-400'}">
+        ${docSnap.id} ${data.used ? "(USED)" : "(ACTIVE)"}
+      </span>
+      <div class="flex gap-2">
+        <button onclick="copyKey('${docSnap.id}')" class="text-blue-400">Copy</button>
+        <button onclick="deleteKey('${docSnap.id}')" class="text-red-400">Delete</button>
+      </div>
     `;
 
     list.appendChild(div);
   });
 }
 
-// ❌ DELETE KEY
+// COPY
+window.copyKey = (key)=>{
+  navigator.clipboard.writeText(key);
+  alert("Copied: " + key);
+};
+
+// DELETE
 window.deleteKey = async (key)=>{
   await deleteDoc(doc(db,"keys",key));
   loadKeys();
 };
 
-// 📦 ADD STOCK
+// 📦 STOCK
 window.addStock = async ()=>{
   let type = document.getElementById("stockType").value;
 
@@ -191,10 +201,10 @@ window.addStock = async ()=>{
 
   await setDoc(ref,data);
 
-  alert("Stock added");
+  alert("Stock added successfully");
 };
 
-// 🚪 LOGOUT
+// LOGOUT
 window.logout = ()=>{
   signOut(auth).then(()=>location.href="login.html");
 };
