@@ -6,22 +6,15 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body {
-  background: radial-gradient(circle at top, #0b0f1a, #000);
-}
-.sidebar {
-  background: rgba(7,13,24,0.9);
-}
-.card {
-  background: rgba(17,24,39,0.85);
-  border-radius: 16px;
-}
+body { background: radial-gradient(circle at top, #0b0f1a, #000); }
+.sidebar { background: rgba(7,13,24,0.9); }
+.card { background: rgba(17,24,39,0.85); border-radius:16px; }
 .logo {
-  font-size: 22px;
-  font-weight: 900;
-  background: linear-gradient(90deg,#00ccff,#00ff88);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size:22px;
+  font-weight:900;
+  background:linear-gradient(90deg,#00ccff,#00ff88);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 </style>
 </head>
@@ -33,61 +26,15 @@ body {
 
 <h1 class="logo mb-6">WOAHGEN</h1>
 
-<!-- OVERVIEW -->
 <p class="text-gray-500 text-xs mb-2 uppercase">Overview</p>
+<button onclick="showPage('dashboard')" class="p-2 hover:bg-white/10 rounded mb-1 text-left">Dashboard</button>
+<button onclick="showPage('redeem')" class="p-2 hover:bg-white/10 rounded mb-3 text-left">Redeem Key</button>
 
-<button onclick="showPage('dashboard')" class="p-2 hover:bg-white/10 rounded mb-1 text-left">
-Dashboard
-</button>
-
-<button onclick="showPage('redeem')" class="p-2 hover:bg-white/10 rounded mb-1 text-left">
-Redeem Key
-</button>
-
-<button class="p-2 hover:bg-white/10 rounded mb-3 text-left">
-Referrals
-</button>
-
-<!-- SERVICES -->
 <p class="text-gray-500 text-xs mb-2 uppercase">Services</p>
+<button onclick="showPage('generator')" class="p-2 hover:bg-white/10 rounded mb-3 text-left">Generator</button>
 
-<button onclick="showPage('generator')" class="p-2 bg-purple-600 rounded mb-1 text-left">
-Generator
-</button>
-
-<button class="p-2 hover:bg-white/10 rounded mb-1 text-left">
-Botting
-</button>
-
-<button class="p-2 hover:bg-white/10 rounded mb-3 text-left">
-Email
-</button>
-
-<!-- SHOP -->
-<p class="text-gray-500 text-xs mb-2 uppercase">Shop</p>
-
-<a href="https://woahservices.mysellauth.com/" target="_blank">
-<button class="p-2 hover:bg-white/10 rounded mb-1 text-left w-full">
-Shop
-</button>
-</a>
-
-<button class="p-2 hover:bg-white/10 rounded mb-3 text-left">
-Tokens
-</button>
-
-<!-- DEV -->
-<p class="text-gray-500 text-xs mb-2 uppercase">Developers</p>
-
-<button class="p-2 hover:bg-white/10 rounded mb-3 text-left">
-API Docs
-</button>
-
-<!-- LOGOUT -->
 <div class="mt-auto">
-<button onclick="logout()" class="bg-red-500 w-full p-2 rounded">
-Logout
-</button>
+<button onclick="logout()" class="bg-red-500 w-full p-2 rounded">Logout</button>
 </div>
 
 </div>
@@ -97,7 +44,6 @@ Logout
 
 <!-- DASHBOARD -->
 <div id="dashboardPage">
-
 <h1 class="text-3xl mb-6">Dashboard</h1>
 
 <div class="grid grid-cols-3 gap-6">
@@ -118,38 +64,48 @@ Logout
 </div>
 
 </div>
+</div>
 
+<!-- REDEEM -->
+<div id="redeemPage" class="hidden">
+<h1 class="text-3xl mb-6">Redeem Key</h1>
+
+<div class="card p-6 max-w-md">
+<input id="redeemInput" placeholder="WOAH-GEN-XXXX"
+class="w-full p-3 bg-black rounded mb-3">
+
+<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">
+Redeem
+</button>
+</div>
 </div>
 
 <!-- GENERATOR -->
 <div id="generatorPage" class="hidden">
-
 <h1 class="text-3xl mb-6">Generator</h1>
 
 <div class="card p-6 max-w-md">
 
 <!-- LOCKED -->
 <div id="lockedBox">
-
 <p class="text-center text-gray-400 mb-3">🔒 Generator Locked</p>
 
 <a href="https://woahservices.mysellauth.com/" target="_blank">
 <button class="w-full bg-yellow-500 text-black font-bold p-2 rounded mb-3">
-💳 Buy Key
+Buy Key
 </button>
 </a>
 
-<input id="keyInput" placeholder="WOAH-GEN-XXXX" class="w-full p-3 bg-black rounded mb-3">
+<input id="keyInput" placeholder="WOAH-GEN-XXXX"
+class="w-full p-3 bg-black rounded mb-3">
 
 <button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">
 Unlock Generator
 </button>
-
 </div>
 
 <!-- UNLOCKED -->
 <div id="genBox" class="hidden">
-
 <select id="stockType" class="w-full p-2 bg-black rounded mb-3">
 <option value="normal">Normal</option>
 <option value="unchecked">Unchecked</option>
@@ -161,11 +117,9 @@ Generate
 </button>
 
 <p id="output" class="mt-4 text-green-400"></p>
-
 </div>
 
 </div>
-
 </div>
 
 </div>
@@ -189,9 +143,7 @@ let currentUser = null;
 
 // AUTH
 onAuthStateChanged(auth, async (user)=>{
-  if(!user){
-    return location.href = "login.html";
-  }
+  if(!user) return location.href = "login.html";
 
   if(user.email === "pattonayinde27@gmail.com"){
     return location.href = "admin-dashboard.html";
@@ -208,17 +160,23 @@ onAuthStateChanged(auth, async (user)=>{
   }
 });
 
-// NAV
+// NAV FIX
 window.showPage = (p)=>{
-  ["dashboard","generator"].forEach(x=>{
+  ["dashboard","generator","redeem"].forEach(x=>{
     document.getElementById(x+"Page").classList.add("hidden");
   });
   document.getElementById(p+"Page").classList.remove("hidden");
 };
 
-// 🔑 REAL SaaS KEY SYSTEM
+showPage("dashboard");
+
+// 🔑 FIXED REDEEM
 window.redeemKey = async ()=>{
-  let key = document.getElementById("keyInput").value.trim().toUpperCase();
+  let key =
+    document.getElementById("redeemInput")?.value ||
+    document.getElementById("keyInput")?.value;
+
+  key = key.trim().toUpperCase();
 
   if(!key.startsWith("WOAH-GEN-")){
     return alert("Invalid key format");
@@ -246,6 +204,9 @@ window.redeemKey = async ()=>{
   },{merge:true});
 
   unlockUI();
+
+  alert("Key redeemed!");
+  showPage("generator");
 };
 
 // UI
@@ -259,14 +220,13 @@ function unlockUI(){
   document.getElementById("accessType").innerText = "PREMIUM";
 }
 
-// GENERATOR (LOCKED TO PLAN)
+// GENERATOR
 window.generate = async ()=>{
-
   const userRef = doc(db,"users",currentUser.uid);
   const userSnap = await getDoc(userRef);
 
   if(!userSnap.exists() || userSnap.data().plan !== "premium"){
-    return alert("You need a valid key");
+    return alert("Need premium");
   }
 
   let type = document.getElementById("stockType").value;
@@ -274,8 +234,7 @@ window.generate = async ()=>{
   const ref = doc(db,"stock","main");
   const snap = await getDoc(ref);
 
-  let data = snap.data();
-  let list = data[type] || [];
+  let list = snap.data()[type] || [];
 
   if(list.length === 0){
     return alert("Out of stock");
