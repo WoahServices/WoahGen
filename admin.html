@@ -38,8 +38,10 @@ canvas {
 
 <body class="flex items-center justify-center h-screen text-white">
 
+<!-- MATRIX -->
 <canvas id="matrix"></canvas>
 
+<!-- LOGIN BOX -->
 <div class="bg-[#111827]/90 backdrop-blur p-8 rounded-xl w-96 shadow-lg border border-purple-500/30">
 
 <h1 class="woah-text text-center mb-4">WOAH SERVICES</h1>
@@ -58,7 +60,7 @@ Login as Admin
 </button>
 
 <p class="text-sm text-gray-400 mt-4 text-center">
-<a href="login.html" class="text-green-400">Back to Login</a>
+<a href="login.html" class="text-green-400">Back to User Login</a>
 </p>
 
 </div>
@@ -73,15 +75,12 @@ const firebaseConfig = {
   apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
   authDomain: "woahgen-602ae.firebaseapp.com",
   projectId: "woahgen-602ae",
-  storageBucket: "woahgen-602ae.firebasestorage.app",
-  messagingSenderId: "484403134603",
-  appId: "1:484403134603:web:177a61bacc055f4077d48e"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// ADMIN LOGIN
+// 🔐 ADMIN LOGIN
 window.adminLogin = async function() {
 
   let email = document.getElementById("adminEmail").value.trim().toLowerCase();
@@ -92,7 +91,7 @@ window.adminLogin = async function() {
     return;
   }
 
-  // 🚫 ONLY YOUR EMAIL ALLOWED
+  // 👑 ONLY YOUR EMAIL
   if (email !== "pattonayinde27@gmail.com") {
     alert("Not authorized");
     return;
@@ -101,10 +100,8 @@ window.adminLogin = async function() {
   try {
     await signInWithEmailAndPassword(auth, email, pass);
 
-    localStorage.setItem("admin", "true");
-    localStorage.removeItem("loggedIn");
-
-    window.location.href = "dashboard.html";
+    // 🚀 REDIRECT TO ADMIN DASHBOARD
+    window.location.href = "admin-dashboard.html";
 
   } catch (err) {
     alert("Wrong admin login");
@@ -114,7 +111,7 @@ window.adminLogin = async function() {
 
 </script>
 
-<!-- MATRIX -->
+<!-- 🌧️ MATRIX EFFECT -->
 <script>
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
