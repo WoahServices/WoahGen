@@ -72,17 +72,28 @@ Admin
 
 </div>
 
-<script>
+<!-- 🔥 FIREBASE LOGIN -->
+<script type="module">
 
-// ✅ SINGLE ONLOAD (FIXED)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
+  authDomain: "woahgen-602ae.firebaseapp.com",
+  projectId: "woahgen-602ae",
+  storageBucket: "woahgen-602ae.firebasestorage.app",
+  messagingSenderId: "484403134603",
+  appId: "1:484403134603:web:177a61bacc055f4077d48e",
+  measurementId: "G-JC2NL3JS69"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// AUTO REDIRECT
 window.onload = () => {
 
-  // 🔐 set admin password if missing
-  if (!localStorage.getItem("adminPass")) {
-    localStorage.setItem("adminPass", "woah$admin2327!");
-  }
-
-  // 🔁 auto redirect if already logged in
   let user = localStorage.getItem("loggedIn");
   let admin = localStorage.getItem("admin");
 
@@ -90,7 +101,7 @@ window.onload = () => {
     window.location.href = "dashboard.html";
   }
 
-  // 🎬 matrix effect
+  // MATRIX EFFECT
   const canvas = document.getElementById("matrix");
   const ctx = canvas.getContext("2d");
 
@@ -125,8 +136,9 @@ window.onload = () => {
   setInterval(draw, 30);
 };
 
-// 🔐 LOGIN
-function login() {
+// LOGIN FUNCTION
+window.login = async function () {
+
   let email = document.getElementById("email").value.trim().toLowerCase();
   let password = document.getElementById("password").value.trim();
 
@@ -135,31 +147,21 @@ function login() {
     return;
   }
 
-  let adminPass = localStorage.getItem("adminPass");
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
 
-  // 👑 ADMIN LOGIN
-  if (email === "pattonayinde27@gmail.com") {
-    if (password === adminPass) {
+    if (email === "pattonayinde27@gmail.com") {
       localStorage.setItem("admin", "true");
-      localStorage.removeItem("loggedIn");
-      window.location.href = "dashboard.html";
     } else {
-      alert("Wrong admin password");
+      localStorage.setItem("loggedIn", email);
     }
-    return;
-  }
 
-  // 👤 USER LOGIN
-  let user = JSON.parse(localStorage.getItem(email));
-
-  if (user && user.password === password) {
-    localStorage.setItem("loggedIn", email);
-    localStorage.removeItem("admin");
     window.location.href = "dashboard.html";
-  } else {
-    alert("Invalid login");
+
+  } catch (err) {
+    alert("Login failed");
   }
-}
+};
 
 </script>
 
