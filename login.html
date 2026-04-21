@@ -6,35 +6,21 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body {
-  background: #070b14;
-  overflow: hidden;
-}
+body { background:#070b14; overflow:hidden; }
 
 .logo {
-  font-size: 38px;
-  font-weight: 900;
-  background: linear-gradient(90deg, #00ccff, #00ff88);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow:
-    0 0 10px #00ccff,
-    0 0 20px #00ff88,
-    0 0 40px #00ff88;
+  font-size:38px;
+  font-weight:900;
+  background:linear-gradient(90deg,#00ccff,#00ff88);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 
 .card {
-  background: rgba(17,24,39,0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.05);
+  background:rgba(17,24,39,0.85);
+  backdrop-filter:blur(12px);
 }
-
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
-}
+canvas { position:fixed; top:0; left:0; z-index:-1; }
 </style>
 </head>
 
@@ -42,128 +28,62 @@ canvas {
 
 <canvas id="matrix"></canvas>
 
-<div class="card p-8 rounded-2xl w-96 shadow-lg">
+<div class="card p-8 rounded-2xl w-96">
 
 <h1 class="logo text-center mb-4">WOAH SERVICES</h1>
-<h2 class="text-xl text-center mb-6">Login</h2>
 
-<input id="email" type="text" placeholder="Email"
-class="w-full p-3 mb-4 bg-black/50 rounded outline-none">
+<input id="email" placeholder="Email" class="w-full p-3 mb-3 bg-black/50 rounded">
+<input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 bg-black/50 rounded">
 
-<input id="password" type="password" placeholder="Password"
-class="w-full p-3 mb-4 bg-black/50 rounded outline-none">
-
-<button onclick="login()"
-class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded hover:scale-105 transition">
+<button onclick="login()" class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded">
 Login
 </button>
 
 <div class="mt-4 flex gap-2">
-<button onclick="window.location.href='signup.html'"
-class="w-1/2 bg-green-500 p-2 rounded hover:scale-105 transition">
-Sign Up
-</button>
-
-<button onclick="window.location.href='admin.html'"
-class="w-1/2 bg-purple-600 p-2 rounded hover:scale-105 transition">
-Admin
-</button>
+<button onclick="location.href='signup.html'" class="w-1/2 bg-green-500 p-2 rounded">Sign Up</button>
+<button onclick="location.href='admin.html'" class="w-1/2 bg-purple-600 p-2 rounded">Admin</button>
 </div>
 
 </div>
 
-<!-- 🔥 FIREBASE LOGIN -->
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
-  authDomain: "woahgen-602ae.firebaseapp.com",
-  projectId: "woahgen-602ae",
-  storageBucket: "woahgen-602ae.firebasestorage.app",
-  messagingSenderId: "484403134603",
-  appId: "1:484403134603:web:177a61bacc055f4077d48e",
-  measurementId: "G-JC2NL3JS69"
-};
+const app = initializeApp({
+  apiKey:"AIzaSy...",
+  authDomain:"woahgen-602ae.firebaseapp.com",
+  projectId:"woahgen-602ae"
+});
 
-const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// AUTO REDIRECT
-window.onload = () => {
-
-  let user = localStorage.getItem("loggedIn");
-  let admin = localStorage.getItem("admin");
-
-  if (user || admin === "true") {
-    window.location.href = "dashboard.html";
-  }
-
-  // MATRIX EFFECT
-  const canvas = document.getElementById("matrix");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const letters = "01WOAH";
-  const fontSize = 14;
-  const columns = canvas.width / fontSize;
-  const drops = [];
-
-  for (let i = 0; i < columns; i++) drops[i] = 1;
-
-  function draw() {
-    ctx.fillStyle = "rgba(0,0,0,0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "#00ff88";
-    ctx.font = fontSize + "px monospace";
-
-    for (let i = 0; i < drops.length; i++) {
-      let text = letters[Math.floor(Math.random() * letters.length)];
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-      if (drops[i] * fontSize > canvas.height && Math.random() > 0.97)
-        drops[i] = 0;
-
-      drops[i]++;
+// AUTO REDIRECT (NO LOOP)
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    if(user.email === "pattonayinde27@gmail.com"){
+      location.href = "admin-dashboard.html";
+    } else {
+      location.href = "dashboard.html";
     }
   }
+});
 
-  setInterval(draw, 30);
-};
-
-// LOGIN FUNCTION
-window.login = async function () {
-
-  let email = document.getElementById("email").value.trim().toLowerCase();
-  let password = document.getElementById("password").value.trim();
-
-  if (!email || !password) {
-    alert("Fill all fields");
-    return;
-  }
+window.login = async function(){
+  let email = document.getElementById("email").value.trim();
+  let pass = document.getElementById("password").value.trim();
 
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    let res = await signInWithEmailAndPassword(auth,email,pass);
 
-    if (email === "pattonayinde27@gmail.com") {
-      localStorage.setItem("admin", "true");
+    if(res.user.email === "pattonayinde27@gmail.com"){
+      location.href = "admin-dashboard.html";
     } else {
-      localStorage.setItem("loggedIn", email);
+      location.href = "dashboard.html";
     }
 
-    window.location.href = "dashboard.html";
-
-  } catch (err) {
+  } catch {
     alert("Login failed");
   }
 };
-
 </script>
-
-</body>
-</html>
