@@ -67,13 +67,21 @@ Login as Admin
 
 <!-- ADMIN SCRIPT -->
 <script>
+
+// SET DEFAULT PASSWORD IF NONE EXISTS
+if (!localStorage.getItem("adminPass")) {
+  localStorage.setItem("adminPass", "woahadmin123");
+}
+
 function adminLogin() {
   let email = document.getElementById("adminEmail").value;
   let pass = document.getElementById("adminPass").value;
 
+  let savedPass = localStorage.getItem("adminPass");
+
   if (
     email === "pattonayinde27@gmail.com" &&
-    pass === "woah$admin2327!"
+    pass === savedPass
   ) {
     localStorage.setItem("admin", "true");
     localStorage.removeItem("loggedIn");
