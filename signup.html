@@ -69,17 +69,28 @@ Already have an account?
 <!-- SIGNUP SCRIPT -->
 <script>
 function signup() {
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
+  let email = document.getElementById("email").value.trim();
+  let password = document.getElementById("password").value.trim();
 
-  // ❌ BLOCK ADMIN EMAIL
+  // BLOCK ADMIN EMAIL
   if (email === "pattonayinde27@gmail.com") {
-    alert("You cannot create an account with this email.");
+    alert("This email is reserved.");
     return;
   }
 
+  // VALIDATION
   if (!email || !password) {
     alert("Fill all fields");
+    return;
+  }
+
+  if (!email.includes("@")) {
+    alert("Enter a valid email");
+    return;
+  }
+
+  if (password.length < 4) {
+    alert("Password must be at least 4 characters");
     return;
   }
 
@@ -88,7 +99,10 @@ function signup() {
     return;
   }
 
-  localStorage.setItem(email, JSON.stringify({ password }));
+  // SAVE USER
+  localStorage.setItem(email, JSON.stringify({
+    password: password
+  }));
 
   alert("Account created!");
   window.location.href = "login.html";
