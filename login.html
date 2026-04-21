@@ -64,20 +64,25 @@ const app = initializeApp({
 
 const auth = getAuth(app);
 
-// AUTO REDIRECT (NO LOOP)
+// ✅ PREVENT MULTIPLE REDIRECTS
+let redirected = false;
+
+// AUTO REDIRECT
 onAuthStateChanged(auth, (user)=>{
-  if(user){
+  if(user && !redirected){
+    redirected = true;
+
     if(user.email === "pattonayinde27@gmail.com"){
-      location.href = "admin-dashboard.html";
+      window.location.href = "admin-dashboard.html";
     } else {
-      location.href = "dashboard.html";
+      window.location.href = "dashboard.html";
     }
   }
 });
 
-// LOGIN FUNCTION
+// LOGIN
 window.login = async function(){
-  let email = document.getElementById("email").value.trim();
+  let email = document.getElementById("email").value.trim().toLowerCase();
   let pass = document.getElementById("password").value.trim();
 
   if(!email || !pass){
@@ -89,12 +94,12 @@ window.login = async function(){
     let res = await signInWithEmailAndPassword(auth,email,pass);
 
     if(res.user.email === "pattonayinde27@gmail.com"){
-      location.href = "admin-dashboard.html";
+      window.location.href = "admin-dashboard.html";
     } else {
-      location.href = "dashboard.html";
+      window.location.href = "dashboard.html";
     }
 
-  } catch {
+  } catch (err) {
     alert("Login failed");
   }
 };
