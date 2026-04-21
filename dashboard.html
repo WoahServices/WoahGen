@@ -2,93 +2,90 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WoahGen Dashboard</title>
+<title>WoahGen</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 body {
-  background: radial-gradient(circle at top, #0b0f1a, #000);
+  background: #070b14;
 }
-.glow {
-  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
-}
-.glow-green {
-  text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+.card {
+  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
 }
 </style>
-
 </head>
 
 <body class="text-white flex">
 
 <!-- SIDEBAR -->
-<div class="w-64 h-screen bg-[#0f172a] p-5 flex flex-col">
+<div class="w-64 h-screen bg-[#0b0f1a] p-5 flex flex-col border-r border-white/5">
 
-<h1 class="text-xl font-bold mb-6 glow">WoahGen</h1>
+<h1 class="text-xl font-bold mb-6 text-purple-400">WoahGen</h1>
 
-<div class="space-y-3">
+<div class="space-y-2">
 
-<button onclick="showPage('dashboard')" class="w-full text-left p-2 bg-purple-600 rounded">
-Dashboard
-</button>
+<button onclick="showPage('dashboard')" class="w-full text-left p-2 bg-purple-600 rounded">Dashboard</button>
+<button onclick="showPage('generator')" class="w-full text-left p-2 hover:bg-[#111827] rounded">Generator</button>
+<button onclick="showPage('keys')" class="w-full text-left p-2 hover:bg-[#111827] rounded">Keys</button>
 
-<button onclick="showPage('generator')" class="w-full text-left p-2 hover:bg-gray-700 rounded">
-Generator
-</button>
+<button id="stockBtn" onclick="showPage('stock')" class="w-full text-left p-2 hover:bg-[#111827] rounded hidden">Stock</button>
 
-<button onclick="showPage('keys')" class="w-full text-left p-2 hover:bg-gray-700 rounded">
-Keys
-</button>
-
-<!-- ADMIN ONLY BUTTON -->
-<button id="stockBtn" onclick="showPage('stock')" class="w-full text-left p-2 hover:bg-gray-700 rounded hidden">
-Stock
-</button>
+<button onclick="showPage('settings')" class="w-full text-left p-2 hover:bg-[#111827] rounded">Settings</button>
 
 </div>
 
 <div class="mt-auto">
-<button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">
-Logout
-</button>
+<button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
 </div>
 
 </div>
 
 <!-- MAIN -->
-<div class="flex-1 p-8">
+<div class="flex-1">
+
+<!-- TOP BAR -->
+<div class="flex justify-end items-center p-4 border-b border-white/5">
+<div class="bg-[#111827] px-4 py-2 rounded-lg flex items-center gap-4">
+<span class="text-green-400">$0.00</span>
+<button class="bg-purple-600 px-4 py-1 rounded">Redeem Key</button>
+</div>
+</div>
+
+<div class="p-8">
 
 <!-- DASHBOARD -->
 <div id="dashboardPage">
 
-<h1 class="text-3xl mb-6 glow">Dashboard</h1>
+<h1 class="text-3xl mb-6">Dashboard</h1>
 
 <div class="grid grid-cols-4 gap-4 mb-8">
 
-<div class="bg-[#111827] p-4 rounded-xl">
+<div class="card p-4">
 <p class="text-gray-400">Total Generated</p>
 <h2 id="totalGen" class="text-2xl">0</h2>
 </div>
 
-<div class="bg-[#111827] p-4 rounded-xl">
+<div class="card p-4">
 <p class="text-gray-400">This Month</p>
-<h2 class="text-2xl">0</h2>
+<h2>0</h2>
 </div>
 
-<div class="bg-[#111827] p-4 rounded-xl">
+<div class="card p-4">
 <p class="text-gray-400">This Week</p>
-<h2 class="text-2xl">0</h2>
+<h2>0</h2>
 </div>
 
-<div class="bg-[#111827] p-4 rounded-xl">
+<div class="card p-4">
 <p class="text-gray-400">Today</p>
-<h2 class="text-2xl">0</h2>
+<h2>0</h2>
 </div>
 
 </div>
 
-<div class="bg-[#111827] p-6 rounded-xl">
-<h2 class="text-xl mb-2">Subscription</h2>
+<div class="card p-6">
+<h2>Subscription</h2>
 <p id="subStatus" class="text-gray-400">NO PLAN</p>
 </div>
 
@@ -97,30 +94,25 @@ Logout
 <!-- GENERATOR -->
 <div id="generatorPage" class="hidden">
 
-<h1 class="text-3xl mb-6 glow-green">Account Generator</h1>
+<h1 class="text-3xl mb-6">Account Generator</h1>
 
-<div class="bg-[#111827] p-10 rounded-xl text-center">
+<div class="card p-10 text-center">
 
 <div id="lockedBox">
-<h2 class="text-xl mb-2">Account stock is locked</h2>
-<p class="text-gray-400 mb-4">
-Redeem a key to unlock generator
-</p>
+<p class="mb-4">Account stock is locked</p>
 
-<input id="keyInput2" placeholder="Enter key"
-class="p-3 bg-black rounded mb-3 w-64">
+<input id="keyInput2" class="p-3 bg-black rounded mb-3">
 
 <br>
 
-<button onclick="redeemKey()" class="bg-green-500 px-6 py-2 rounded">
+<button onclick="redeemKey()" class="bg-purple-600 px-6 py-2 rounded">
 Redeem Key
 </button>
 </div>
 
-<!-- UNLOCKED -->
 <div id="genBox" class="hidden">
-<button onclick="generateAccount()" class="bg-green-500 px-6 py-3 rounded text-lg">
-Generate Account
+<button onclick="generateAccount()" class="bg-green-500 px-6 py-3 rounded">
+Generate
 </button>
 
 <p id="result" class="mt-4 text-green-400"></p>
@@ -130,26 +122,23 @@ Generate Account
 
 </div>
 
-<!-- KEYS -->
-<div id="keysPage" class="hidden">
+<!-- SETTINGS -->
+<div id="settingsPage" class="hidden">
 
-<h1 class="text-3xl mb-6">Keys</h1>
+<h1 class="text-3xl mb-6">Settings</h1>
 
-<input id="keyInput" placeholder="Enter key"
-class="p-3 bg-black rounded w-64">
+<div class="card p-6 w-[400px]">
 
-<button onclick="redeemKey()" class="bg-blue-500 p-3 ml-2 rounded">
-Redeem
+<input id="oldPass" placeholder="Current Password" class="w-full p-3 mb-3 bg-black rounded">
+<input id="newPass" placeholder="New Password" class="w-full p-3 mb-3 bg-black rounded">
+
+<button onclick="changePassword()" class="bg-green-500 w-full p-3 rounded">
+Update Password
 </button>
 
 </div>
 
-<!-- ADMIN STOCK -->
-<div id="stockPage" class="hidden">
-
-<h1 class="text-3xl mb-6 text-purple-400">Admin Stock Panel</h1>
-
-<div id="adminPanel"></div>
+</div>
 
 </div>
 
@@ -158,100 +147,47 @@ Redeem
 <script>
 
 // AUTH
-let user = localStorage.getItem("loggedIn");
 let admin = localStorage.getItem("admin");
 
-if (!user && admin !== "true") {
-  window.location.href = "login.html";
-}
-
-// SHOW ADMIN UI
 if (admin === "true") {
   document.getElementById("stockBtn").classList.remove("hidden");
-
-  document.getElementById("adminPanel").innerHTML = `
-    <textarea id="stock" placeholder="email:pass" class="w-full h-40 bg-black p-4 rounded"></textarea>
-    <button onclick="saveStock()" class="bg-purple-500 p-3 mt-3 rounded">Save Stock</button>
-  `;
 }
 
 // PAGE SWITCH
 function showPage(page) {
-
-  // BLOCK STOCK ACCESS IF NOT ADMIN
-  if (page === "stock" && localStorage.getItem("admin") !== "true") {
-    alert("Access denied");
-    return;
-  }
-
-  ["dashboard","generator","keys","stock"].forEach(p=>{
+  ["dashboard","generator","settings"].forEach(p=>{
     document.getElementById(p+"Page").classList.add("hidden");
   });
-
   document.getElementById(page+"Page").classList.remove("hidden");
+}
+
+// PASSWORD CHANGE
+function changePassword() {
+  let newPass = document.getElementById("newPass").value;
+  localStorage.setItem("adminPass", newPass);
+  alert("Updated!");
 }
 
 // KEY SYSTEM
 function redeemKey() {
-  let key = document.getElementById("keyInput")?.value || 
-            document.getElementById("keyInput2")?.value;
-
-  if (key === "FREEKEY") {
+  if (document.getElementById("keyInput2").value === "FREEKEY") {
     localStorage.setItem("unlocked", "true");
     document.getElementById("lockedBox").classList.add("hidden");
     document.getElementById("genBox").classList.remove("hidden");
-    document.getElementById("subStatus").innerText = "ACTIVE";
-    alert("Unlocked!");
-  } else {
-    alert("Invalid key");
   }
-}
-
-// LOAD STATE
-if (localStorage.getItem("unlocked") === "true") {
-  document.getElementById("lockedBox")?.classList.add("hidden");
-  document.getElementById("genBox")?.classList.remove("hidden");
-  document.getElementById("subStatus").innerText = "ACTIVE";
 }
 
 // GENERATOR
 function generateAccount() {
   let stock = localStorage.getItem("stock");
-
-  if (!stock) {
-    alert("No stock available");
-    return;
-  }
+  if (!stock) return alert("No stock");
 
   let lines = stock.split("\n");
-
-  if (lines.length === 0 || lines[0] === "") {
-    alert("Out of stock");
-    return;
-  }
-
-  let account = lines.shift();
+  let acc = lines.shift();
 
   localStorage.setItem("stock", lines.join("\n"));
 
-  document.getElementById("result").innerText = account;
-
-  // TRACK STATS
-  let total = parseInt(localStorage.getItem("totalGen") || "0");
-  total++;
-  localStorage.setItem("totalGen", total);
-  document.getElementById("totalGen").innerText = total;
-}
-
-// LOAD STATS
-document.getElementById("totalGen").innerText =
-  localStorage.getItem("totalGen") || 0;
-
-// SAVE STOCK
-function saveStock() {
-  let stock = document.getElementById("stock").value;
-  localStorage.setItem("stock", stock);
-  alert("Stock saved");
+  document.getElementById("result").innerText = acc;
 }
 
 // LOGOUT
