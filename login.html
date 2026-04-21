@@ -85,20 +85,29 @@ if (!localStorage.getItem("adminPass")) {
 }
 
 function login() {
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
+  let email = document.getElementById("email").value.trim();
+  let password = document.getElementById("password").value.trim();
 
-  let adminPass = localStorage.getItem("adminPass");
-
-  // ADMIN LOGIN
-  if (email === "pattonayinde27@gmail.com" && password === adminPass) {
-    localStorage.setItem("admin", "true");
-    localStorage.removeItem("loggedIn");
-    window.location.href = "dashboard.html";
+  if (!email || !password) {
+    alert("Fill all fields");
     return;
   }
 
-  // USER LOGIN
+  let adminPass = localStorage.getItem("adminPass");
+
+  // 🔐 ADMIN LOGIN
+  if (email === "pattonayinde27@gmail.com") {
+    if (password === adminPass) {
+      localStorage.setItem("admin", "true");
+      localStorage.removeItem("loggedIn");
+      window.location.href = "dashboard.html";
+    } else {
+      alert("Wrong admin password");
+    }
+    return;
+  }
+
+  // 👤 USER LOGIN
   let user = JSON.parse(localStorage.getItem(email));
 
   if (user && user.password === password) {
