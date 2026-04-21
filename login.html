@@ -11,7 +11,6 @@ body {
   overflow: hidden;
 }
 
-/* logo */
 .logo {
   font-size: 38px;
   font-weight: 900;
@@ -24,14 +23,12 @@ body {
     0 0 40px #00ff88;
 }
 
-/* glass */
 .card {
   background: rgba(17,24,39,0.85);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* matrix */
 canvas {
   position: fixed;
   top: 0;
@@ -77,61 +74,24 @@ Admin
 
 <script>
 
-// WAIT UNTIL PAGE LOADS (PREVENT WHITE SCREEN BUG)
+// ✅ SINGLE ONLOAD (FIXED)
 window.onload = () => {
 
-  // SET DEFAULT ADMIN PASSWORD
+  // 🔐 set admin password if missing
   if (!localStorage.getItem("adminPass")) {
-    localStorage.setItem("adminPass", "woahadmin123");
+    localStorage.setItem("adminPass", "woah$admin2327!");
   }
 
-};
+  // 🔁 auto redirect if already logged in
+  let user = localStorage.getItem("loggedIn");
+  let admin = localStorage.getItem("admin");
 
-// LOGIN FUNCTION
-function login() {
-  let email = document.getElementById("email").value.trim();
-  let password = document.getElementById("password").value.trim();
-
-  if (!email || !password) {
-    alert("Fill all fields");
-    return;
-  }
-
-  let adminPass = localStorage.getItem("adminPass");
-
-  // ADMIN LOGIN
-  if (email === "pattonayinde27@gmail.com") {
-    if (password === adminPass) {
-      localStorage.setItem("admin", "true");
-      localStorage.removeItem("loggedIn");
-      window.location.href = "dashboard.html";
-    } else {
-      alert("Wrong admin password");
-    }
-    return;
-  }
-
-  // USER LOGIN
-  let user = JSON.parse(localStorage.getItem(email));
-
-  if (user && user.password === password) {
-    localStorage.setItem("loggedIn", email);
-    localStorage.removeItem("admin");
+  if (user || admin === "true") {
     window.location.href = "dashboard.html";
-  } else {
-    alert("Invalid login");
   }
-}
 
-</script>
-
-<script>
-// MATRIX SAFE INIT
-window.onload = () => {
-
+  // 🎬 matrix effect
   const canvas = document.getElementById("matrix");
-  if (!canvas) return;
-
   const ctx = canvas.getContext("2d");
 
   canvas.width = window.innerWidth;
@@ -163,8 +123,44 @@ window.onload = () => {
   }
 
   setInterval(draw, 30);
-
 };
+
+// 🔐 LOGIN
+function login() {
+  let email = document.getElementById("email").value.trim().toLowerCase();
+  let password = document.getElementById("password").value.trim();
+
+  if (!email || !password) {
+    alert("Fill all fields");
+    return;
+  }
+
+  let adminPass = localStorage.getItem("adminPass");
+
+  // 👑 ADMIN LOGIN
+  if (email === "pattonayinde27@gmail.com") {
+    if (password === adminPass) {
+      localStorage.setItem("admin", "true");
+      localStorage.removeItem("loggedIn");
+      window.location.href = "dashboard.html";
+    } else {
+      alert("Wrong admin password");
+    }
+    return;
+  }
+
+  // 👤 USER LOGIN
+  let user = JSON.parse(localStorage.getItem(email));
+
+  if (user && user.password === password) {
+    localStorage.setItem("loggedIn", email);
+    localStorage.removeItem("admin");
+    window.location.href = "dashboard.html";
+  } else {
+    alert("Invalid login");
+  }
+}
+
 </script>
 
 </body>
