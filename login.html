@@ -11,7 +11,7 @@ body {
   overflow: hidden;
 }
 
-/* glow logo */
+/* logo */
 .logo {
   font-size: 38px;
   font-weight: 900;
@@ -24,7 +24,7 @@ body {
     0 0 40px #00ff88;
 }
 
-/* glass card */
+/* glass */
 .card {
   background: rgba(17,24,39,0.85);
   backdrop-filter: blur(12px);
@@ -43,10 +43,8 @@ canvas {
 
 <body class="flex items-center justify-center h-screen text-white">
 
-<!-- MATRIX -->
 <canvas id="matrix"></canvas>
 
-<!-- LOGIN BOX -->
 <div class="card p-8 rounded-2xl w-96 shadow-lg">
 
 <h1 class="logo text-center mb-4">WOAH SERVICES</h1>
@@ -79,11 +77,17 @@ Admin
 
 <script>
 
-// SET DEFAULT ADMIN PASSWORD
-if (!localStorage.getItem("adminPass")) {
-  localStorage.setItem("adminPass", "woahadmin123");
-}
+// WAIT UNTIL PAGE LOADS (PREVENT WHITE SCREEN BUG)
+window.onload = () => {
 
+  // SET DEFAULT ADMIN PASSWORD
+  if (!localStorage.getItem("adminPass")) {
+    localStorage.setItem("adminPass", "woahadmin123");
+  }
+
+};
+
+// LOGIN FUNCTION
 function login() {
   let email = document.getElementById("email").value.trim();
   let password = document.getElementById("password").value.trim();
@@ -95,7 +99,7 @@ function login() {
 
   let adminPass = localStorage.getItem("adminPass");
 
-  // 🔐 ADMIN LOGIN
+  // ADMIN LOGIN
   if (email === "pattonayinde27@gmail.com") {
     if (password === adminPass) {
       localStorage.setItem("admin", "true");
@@ -107,7 +111,7 @@ function login() {
     return;
   }
 
-  // 👤 USER LOGIN
+  // USER LOGIN
   let user = JSON.parse(localStorage.getItem(email));
 
   if (user && user.password === password) {
@@ -121,40 +125,46 @@ function login() {
 
 </script>
 
-<!-- MATRIX EFFECT -->
 <script>
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
+// MATRIX SAFE INIT
+window.onload = () => {
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+  const canvas = document.getElementById("matrix");
+  if (!canvas) return;
 
-const letters = "01WOAH";
-const fontSize = 14;
-const columns = canvas.width / fontSize;
-const drops = [];
+  const ctx = canvas.getContext("2d");
 
-for (let i = 0; i < columns; i++) drops[i] = 1;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-function draw() {
-  ctx.fillStyle = "rgba(0,0,0,0.05)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const letters = "01WOAH";
+  const fontSize = 14;
+  const columns = canvas.width / fontSize;
+  const drops = [];
 
-  ctx.fillStyle = "#00ff88";
-  ctx.font = fontSize + "px monospace";
+  for (let i = 0; i < columns; i++) drops[i] = 1;
 
-  for (let i = 0; i < drops.length; i++) {
-    let text = letters[Math.floor(Math.random() * letters.length)];
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+  function draw() {
+    ctx.fillStyle = "rgba(0,0,0,0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.97)
-      drops[i] = 0;
+    ctx.fillStyle = "#00ff88";
+    ctx.font = fontSize + "px monospace";
 
-    drops[i]++;
+    for (let i = 0; i < drops.length; i++) {
+      let text = letters[Math.floor(Math.random() * letters.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.97)
+        drops[i] = 0;
+
+      drops[i]++;
+    }
   }
-}
 
-setInterval(draw, 30);
+  setInterval(draw, 30);
+
+};
 </script>
 
 </body>
