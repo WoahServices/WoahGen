@@ -19,7 +19,10 @@ body {
 /* logo */
 .logo {
   font-weight: 800;
-  font-size: 20px;
+  font-size: 22px;
+  background: linear-gradient(90deg,#00ccff,#00ff88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* card */
@@ -27,6 +30,11 @@ body {
   background: #0b1220;
   border: 1px solid rgba(255,255,255,0.05);
   border-radius: 14px;
+  transition: 0.2s;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0,255,136,0.2);
 }
 
 /* nav */
@@ -47,7 +55,7 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
+  background: #00ff88;
 }
 </style>
 </head>
@@ -57,27 +65,21 @@ body {
 <!-- SIDEBAR -->
 <div class="sidebar w-64 h-screen flex flex-col overflow-y-auto">
 
-<!-- TOP -->
 <div class="p-4 border-b border-white/5">
   <h1 class="logo">WoahGen</h1>
 </div>
 
-<!-- NAV -->
 <div class="p-4 text-sm">
 
 <p class="text-gray-500 mb-2">OVERVIEW</p>
 <div class="space-y-1 mb-4">
   <button onclick="showPage('dashboard')" class="nav-btn nav-active w-full text-left">Dashboard</button>
-  <button class="nav-btn w-full text-left">Redeem Key</button>
-  <button class="nav-btn w-full text-left">Referrals</button>
 </div>
 
 <p class="text-gray-500 mb-2">SERVICES</p>
 <div class="space-y-1 mb-4">
   <button onclick="showPage('generator')" class="nav-btn w-full text-left">Generator</button>
-  <button class="nav-btn">Botting</button>
-  <button class="nav-btn">Email</button>
-  <button class="nav-btn">History</button>
+  <button onclick="showPage('pricing')" class="nav-btn w-full text-left">Pricing</button>
 </div>
 
 <p class="text-gray-500 mb-2">ADMIN</p>
@@ -93,7 +95,6 @@ body {
 
 </div>
 
-<!-- USER -->
 <div class="mt-auto p-4 border-t border-white/5 text-sm">
   <p>Account</p>
   <p class="text-gray-400">No Plan</p>
@@ -107,16 +108,16 @@ body {
 <!-- MAIN -->
 <div class="flex-1">
 
-<!-- TOP BAR -->
+<!-- TOP -->
 <div class="flex justify-between items-center p-4 border-b border-white/5">
-
-<h1 class="text-lg font-semibold">Dashboard</h1>
+<h1 class="text-lg font-semibold">WoahGen</h1>
 
 <div class="flex gap-3">
   <div class="card px-4 py-2">$0.00</div>
-  <button class="bg-indigo-600 px-4 py-2 rounded">Redeem Key</button>
+  <button onclick="showPage('pricing')" class="bg-green-500 px-4 py-2 rounded">
+    Upgrade
+  </button>
 </div>
-
 </div>
 
 <div class="p-6">
@@ -125,21 +126,15 @@ body {
 <div id="dashboardPage">
 
 <div class="grid grid-cols-4 gap-4 mb-6">
-
-<div class="card p-4">
-<p class="text-gray-400">Total Generated</p>
-<h2 id="totalGen" class="text-2xl">0</h2>
-</div>
-
+<div class="card p-4"><p>Total Generated</p><h2 id="totalGen">0</h2></div>
 <div class="card p-4"><p>This Month</p><h2>0</h2></div>
 <div class="card p-4"><p>This Week</p><h2>0</h2></div>
 <div class="card p-4"><p>Today</p><h2>0</h2></div>
-
 </div>
 
 <div class="card p-6">
-<p class="text-gray-400">Subscription</p>
-<p>NO PLAN</p>
+<p>Subscription</p>
+<p class="text-gray-400">NO PLAN</p>
 </div>
 
 </div>
@@ -166,7 +161,54 @@ Redeem
 Generate
 </button>
 
-<p id="result" class="mt-3"></p>
+<p id="result" class="mt-3 text-green-400"></p>
+</div>
+
+</div>
+
+</div>
+
+<!-- 💰 PRICING PAGE -->
+<div id="pricingPage" class="hidden">
+
+<h1 class="text-2xl mb-6">Pricing</h1>
+
+<div class="grid grid-cols-3 gap-6">
+
+<!-- BASIC -->
+<div class="card p-6 text-center">
+<h2 class="text-xl mb-2">Basic</h2>
+<p class="mb-4 text-gray-400">$5</p>
+
+<a href="https://woahservices.mysellauth.com/" target="_blank">
+<button class="bg-green-500 px-6 py-2 rounded w-full">
+Buy Now
+</button>
+</a>
+</div>
+
+<!-- PRO -->
+<div class="card p-6 text-center">
+<h2 class="text-xl mb-2">Pro</h2>
+<p class="mb-4 text-gray-400">$10</p>
+
+<a href="https://woahservices.mysellauth.com/" target="_blank">
+<button class="bg-blue-500 px-6 py-2 rounded w-full">
+Buy Now
+</button>
+</a>
+</div>
+
+<!-- PREMIUM -->
+<div class="card p-6 text-center">
+<h2 class="text-xl mb-2">Premium</h2>
+<p class="mb-4 text-gray-400">$20</p>
+
+<a href="https://woahservices.mysellauth.com/" target="_blank">
+<button class="bg-purple-600 px-6 py-2 rounded w-full">
+Buy Now
+</button>
+</a>
 </div>
 
 </div>
@@ -188,18 +230,13 @@ Generate Key
 
 <!-- SETTINGS -->
 <div id="settingsPage" class="hidden">
-
-<input id="oldPass" placeholder="Old" class="p-2 bg-black mb-2">
-<input id="newPass" placeholder="New" class="p-2 bg-black mb-2">
-
+<input id="newPass" placeholder="New Password" class="p-2 bg-black mb-2">
 <button onclick="changePassword()" class="bg-green-500 p-2">
 Update
 </button>
-
 </div>
 
 </div>
-
 </div>
 
 <script>
@@ -222,7 +259,7 @@ window.onload = () => {
 
 // NAV
 function showPage(page) {
-  ["dashboard","generator","keys","stock","settings"].forEach(p=>{
+  ["dashboard","generator","keys","stock","settings","pricing"].forEach(p=>{
     let el = document.getElementById(p+"Page");
     if (el) el.classList.add("hidden");
   });
@@ -260,7 +297,7 @@ function saveStock() {
   localStorage.setItem("stock", document.getElementById("stock").value);
 }
 
-// GENERATE
+// GENERATOR
 function generateAccount() {
   let stock = localStorage.getItem("stock");
   if (!stock) return alert("No stock");
@@ -281,6 +318,7 @@ function generateAccount() {
 function changePassword() {
   let newPass = document.getElementById("newPass").value;
   localStorage.setItem("adminPass", newPass);
+  alert("Password updated");
 }
 
 // LOGOUT
