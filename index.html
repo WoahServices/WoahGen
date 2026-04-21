@@ -1,9 +1,12 @@
 <script>
-let user = localStorage.getItem("loggedIn");
-let admin = localStorage.getItem("admin");
+window.onload = () => {
+  let user = localStorage.getItem("loggedIn");
+  let admin = localStorage.getItem("admin");
 
-// ONLY redirect if already logged in
-if (user || admin === "true") {
-  window.location.href = "dashboard.html";
-}
+  if (user || admin === "true") {
+    window.location.href = "dashboard.html";
+  } else {
+    window.location.href = "login.html";
+  }
+};
 </script>
