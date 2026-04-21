@@ -11,12 +11,10 @@ body {
   overflow: hidden;
 }
 
-/* glow */
 .glow {
   text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
 }
 
-/* WOAH text */
 .woah-text {
   font-size: 40px;
   font-weight: 900;
@@ -29,7 +27,6 @@ body {
     0 0 40px #00ff88;
 }
 
-/* matrix canvas */
 canvas {
   position: fixed;
   top: 0;
@@ -41,10 +38,8 @@ canvas {
 
 <body class="flex items-center justify-center h-screen text-white">
 
-<!-- MATRIX BACKGROUND -->
 <canvas id="matrix"></canvas>
 
-<!-- LOGIN BOX -->
 <div class="bg-[#111827]/90 backdrop-blur p-8 rounded-xl w-96 shadow-lg border border-green-500/20">
 
 <h1 class="woah-text text-center mb-4">WOAH SERVICES</h1>
@@ -57,13 +52,11 @@ class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
 <input id="password" type="password" placeholder="Password"
 class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
 
-<!-- USER LOGIN -->
 <button onclick="login()"
 class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded hover:scale-105 transition">
 Login
 </button>
 
-<!-- EXTRA BUTTONS -->
 <div class="mt-4 flex gap-2">
 
 <button onclick="window.location.href='signup.html'"
@@ -71,8 +64,10 @@ class="w-1/2 bg-green-500 p-2 rounded hover:scale-105 transition">
 Sign Up
 </button>
 
-<button onclick="window.location.href='admin.html'"
-class="w-1/2 bg-purple-600 p-2 rounded hover:scale-105 transition">
+<!-- ADMIN BUTTON (HIDDEN UNTIL EMAIL MATCHES) -->
+<button id="adminBtn"
+onclick="window.location.href='admin.html'"
+class="w-1/2 bg-purple-600 p-2 rounded hover:scale-105 transition hidden">
 Admin
 </button>
 
@@ -88,16 +83,38 @@ function login() {
 
   let user = JSON.parse(localStorage.getItem(email));
 
+  // 👑 ADMIN LOGIN (ONLY YOU)
+  if (
+    email === "pattonayinde27@gmail.com" &&
+    password === "woahadmin123"
+  ) {
+    localStorage.setItem("admin", "true");
+    localStorage.removeItem("loggedIn");
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  // 👤 NORMAL USER LOGIN
   if (user && user.password === password) {
     localStorage.setItem("loggedIn", email);
+    localStorage.removeItem("admin");
     window.location.href = "dashboard.html";
   } else {
     alert("Invalid login");
   }
 }
+
+// 👁️ SHOW ADMIN BUTTON ONLY IF YOUR EMAIL IS TYPED
+document.getElementById("email").addEventListener("input", function() {
+  if (this.value === "pattonayinde27@gmail.com") {
+    document.getElementById("adminBtn").classList.remove("hidden");
+  } else {
+    document.getElementById("adminBtn").classList.add("hidden");
+  }
+});
 </script>
 
-<!-- MATRIX RAIN SCRIPT -->
+<!-- MATRIX RAIN -->
 <script>
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
