@@ -94,7 +94,7 @@ Add Stock
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
@@ -103,24 +103,26 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-let currentUser = null;
-
-// 🔐 AUTH CHECK (ADMIN ONLY)
+// 🔐 ADMIN AUTH CHECK (FIXED)
 onAuthStateChanged(auth, (user) => {
-  if (!user) return window.location.href = "login.html";
 
-  if (user.email !== "pattonayinde27@gmail.com") {
-    alert("Not authorized");
-    window.location.href = "dashboard.html";
+  if (!user) {
+    window.location.href = "login.html";
+    return;
   }
 
-  currentUser = user;
+  // 🚫 NOT ADMIN → KICK TO USER DASH
+  if (user.email !== "pattonayinde27@gmail.com") {
+    window.location.href = "dashboard.html";
+    return;
+  }
+
 });
 
-// NAV
+// NAVIGATION
 window.showPage = function(page){
   ["overview","users","keys","stock","gen"].forEach(p=>{
     document.getElementById(p+"Page").classList.add("hidden");
@@ -128,7 +130,7 @@ window.showPage = function(page){
   document.getElementById(page+"Page").classList.remove("hidden");
 };
 
-// 🔑 CREATE KEY (FIREBASE)
+// 🔑 CREATE KEY
 window.createKey = async function(){
   let key = "WOAH-GEN-" + Math.floor(1000 + Math.random()*9000);
 
@@ -140,7 +142,7 @@ window.createKey = async function(){
   document.getElementById("newKey").innerText = key;
 };
 
-// 📦 ADD STOCK (FIREBASE)
+// 📦 ADD STOCK
 window.addStock = async function(){
   let type = document.getElementById("stockType").value;
   let lines = document.getElementById("stockInput").value.split("\n");
@@ -159,7 +161,9 @@ window.addStock = async function(){
 
 // 🚪 LOGOUT
 window.logout = function(){
-  signOut(auth);
+  signOut(auth).then(()=>{
+    window.location.href = "login.html";
+  });
 };
 </script>
 
