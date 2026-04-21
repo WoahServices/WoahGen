@@ -68,26 +68,34 @@ Login as Admin
 <!-- ADMIN SCRIPT -->
 <script>
 
-// SET DEFAULT PASSWORD IF NONE EXISTS
+// 🔐 SET DEFAULT PASSWORD (ONLY FIRST TIME)
 if (!localStorage.getItem("adminPass")) {
-  localStorage.setItem("adminPass", "woahadmin123");
+  localStorage.setItem("adminPass", "woah$admin2327!");
 }
 
 function adminLogin() {
-  let email = document.getElementById("adminEmail").value;
-  let pass = document.getElementById("adminPass").value;
+  let email = document.getElementById("adminEmail").value.trim();
+  let pass = document.getElementById("adminPass").value.trim();
 
   let savedPass = localStorage.getItem("adminPass");
 
-  if (
-    email === "pattonayinde27@gmail.com" &&
-    pass === savedPass
-  ) {
-    localStorage.setItem("admin", "true");
-    localStorage.removeItem("loggedIn");
-    window.location.href = "dashboard.html";
+  // 🚫 empty check
+  if (!email || !pass) {
+    alert("Fill all fields");
+    return;
+  }
+
+  // 🔐 admin check
+  if (email === "pattonayinde27@gmail.com") {
+    if (pass === savedPass) {
+      localStorage.setItem("admin", "true");
+      localStorage.removeItem("loggedIn");
+      window.location.href = "dashboard.html";
+    } else {
+      alert("Wrong admin password");
+    }
   } else {
-    alert("Access denied");
+    alert("Not authorized");
   }
 }
 </script>
