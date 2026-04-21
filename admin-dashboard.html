@@ -17,17 +17,15 @@ body { background:#050a14; }
 <body class="flex text-white">
 
 <!-- SIDEBAR -->
-<div class="sidebar w-64 h-screen p-5 flex flex-col overflow-y-auto">
+<div class="sidebar w-64 h-screen p-5 flex flex-col">
 
 <h1 class="text-xl font-bold mb-6 text-purple-400">WoahGen</h1>
 
 <p class="text-gray-400 text-xs mb-2 uppercase">Admin</p>
 
 <button onclick="showPage('overview')" class="p-2 hover:bg-[#111827] rounded text-left">🛡️ Overview</button>
-<button onclick="showPage('users')" class="p-2 hover:bg-[#111827] rounded text-left">👥 Users</button>
 <button onclick="showPage('keys')" class="p-2 hover:bg-[#111827] rounded text-left">🔑 Keys</button>
 <button onclick="showPage('stock')" class="p-2 hover:bg-[#111827] rounded text-left">📦 Stock</button>
-<button onclick="showPage('gen')" class="p-2 hover:bg-[#111827] rounded text-left">📊 Generations</button>
 
 <div class="mt-auto">
 <button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
@@ -44,30 +42,33 @@ body { background:#050a14; }
 <p class="text-gray-400">Welcome back admin 👑</p>
 </div>
 
-<!-- USERS -->
-<div id="usersPage" class="hidden">
-<h1 class="text-3xl mb-6">Users</h1>
-<p class="text-gray-400">Coming soon...</p>
-</div>
-
 <!-- KEYS -->
 <div id="keysPage" class="hidden">
-<h1 class="text-3xl mb-6">Key Generator</h1>
 
-<div class="card p-6">
+<h1 class="text-3xl mb-6">Key Manager</h1>
+
+<div class="card p-6 mb-6">
 <button onclick="createKey()" class="bg-purple-600 px-6 py-2 rounded mb-4">
 Generate Key
 </button>
 
 <p id="newKey" class="text-green-400"></p>
 </div>
+
+<div class="card p-6">
+<h2 class="mb-3">All Keys</h2>
+<div id="keyList" class="space-y-2 text-sm"></div>
+</div>
+
 </div>
 
 <!-- STOCK -->
 <div id="stockPage" class="hidden">
-<h1 class="text-3xl mb-6">Stock</h1>
+
+<h1 class="text-3xl mb-6">Stock Manager</h1>
 
 <div class="card p-6">
+
 <textarea id="stockInput" class="w-full h-40 bg-black p-3 rounded mb-4" placeholder="user:pass"></textarea>
 
 <select id="stockType" class="w-full p-2 bg-black rounded mb-3">
@@ -79,13 +80,9 @@ Generate Key
 <button onclick="addStock()" class="bg-purple-600 px-6 py-2 rounded">
 Add Stock
 </button>
-</div>
+
 </div>
 
-<!-- GENERATIONS -->
-<div id="genPage" class="hidden">
-<h1 class="text-3xl mb-6">Generations</h1>
-<p class="text-gray-400">Logs coming soon...</p>
 </div>
 
 </div>
@@ -94,82 +91,108 @@ Add Stock
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
-  authDomain: "woahgen-602ae.firebaseapp.com",
-  projectId: "woahgen-602ae"
+  apiKey:"AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
+  authDomain:"woahgen-602ae.firebaseapp.com",
+  projectId:"woahgen-602ae"
 });
 
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🔐 ADMIN AUTH (NO LOOP)
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    return window.location.href = "login.html";
-  }
-
-  if (user.email !== "pattonayinde27@gmail.com") {
-    return window.location.href = "dashboard.html";
+// AUTH CHECK
+onAuthStateChanged(auth, (user)=>{
+  if(!user) return location.href="login.html";
+  if(user.email !== "pattonayinde27@gmail.com"){
+    return location.href="dashboard.html";
   }
 });
 
-// DEFAULT PAGE
-showPage("overview");
-
-// NAV
-window.showPage = function(page){
-  ["overview","users","keys","stock","gen"].forEach(p=>{
+// NAV FIX
+function showPage(page){
+  ["overview","keys","stock"].forEach(p=>{
     document.getElementById(p+"Page").classList.add("hidden");
   });
   document.getElementById(page+"Page").classList.remove("hidden");
-};
 
-// 🔑 KEY GENERATOR (FIXED FORMAT)
-window.createKey = async function(){
+  if(page === "keys") loadKeys();
+}
+window.showPage = showPage;
+
+window.addEventListener("load", ()=>{
+  showPage("overview");
+});
+
+// CREATE KEY
+window.createKey = async ()=>{
   let key = "WOAH-GEN-" + Math.floor(1000 + Math.random()*9000);
 
-  await setDoc(doc(db, "keys", key), {
-    used: false,
-    createdAt: Date.now()
+  await setDoc(doc(db,"keys",key),{
+    used:false,
+    createdAt:Date.now()
   });
 
-  document.getElementById("newKey").innerText = "Generated: " + key;
+  document.getElementById("newKey").innerText = key;
+
+  loadKeys();
 };
 
-// 📦 STOCK FIX
-window.addStock = async function(){
+// LOAD KEYS
+async function loadKeys(){
+  const snapshot = await getDocs(collection(db,"keys"));
+
+  const list = document.getElementById("keyList");
+  list.innerHTML = "";
+
+  snapshot.forEach(docSnap=>{
+    let data = docSnap.data();
+
+    let div = document.createElement("div");
+    div.className = "flex justify-between bg-black/40 p-2 rounded";
+
+    div.innerHTML = `
+      <span>${docSnap.id} ${data.used ? "(USED)" : ""}</span>
+      <button onclick="deleteKey('${docSnap.id}')" class="text-red-400">Delete</button>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+// DELETE KEY
+window.deleteKey = async (key)=>{
+  await deleteDoc(doc(db,"keys",key));
+  loadKeys();
+};
+
+// ADD STOCK
+window.addStock = async ()=>{
   let type = document.getElementById("stockType").value;
 
-  let lines = document.getElementById("stockInput")
-    .value
+  let lines = document.getElementById("stockInput").value
     .split("\n")
-    .map(x => x.trim())
-    .filter(x => x !== "");
+    .map(x=>x.trim())
+    .filter(x=>x);
 
-  if(lines.length === 0){
-    return alert("No valid stock");
-  }
+  if(!lines.length) return alert("No stock");
 
-  const ref = doc(db, "stock", "main");
+  const ref = doc(db,"stock","main");
   const snap = await getDoc(ref);
 
   let data = snap.exists() ? snap.data() : { normal:[], unchecked:[], hq:[] };
 
   data[type] = data[type].concat(lines);
 
-  await setDoc(ref, data);
+  await setDoc(ref,data);
 
-  alert("Stock added successfully");
+  alert("Stock added");
 };
 
-// 🚪 LOGOUT
-window.logout = function(){
-  signOut(auth).then(()=>{
-    window.location.href = "login.html";
-  });
+// LOGOUT
+window.logout = ()=>{
+  signOut(auth).then(()=>location.href="login.html");
 };
 </script>
 
