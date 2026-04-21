@@ -2,19 +2,145 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard</title>
+<title>WoahGen Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+  background: radial-gradient(circle at top, #0b0f1a, #000);
+}
+.glow {
+  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+}
+.glow-green {
+  text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
+}
+</style>
+
 </head>
 
-<body class="bg-[#0b0f1a] text-white p-10">
+<body class="text-white flex">
 
-<h1 class="text-3xl mb-6">Dashboard</h1>
+<!-- SIDEBAR -->
+<div class="w-64 h-screen bg-[#0f172a] p-5 flex flex-col">
 
-<p id="user"></p>
+<h1 class="text-xl font-bold mb-6 glow">WoahGen</h1>
 
-<button onclick="logout()" class="bg-red-500 p-2 mt-4 rounded">Logout</button>
+<div class="space-y-3">
+
+<button onclick="showPage('dashboard')" class="w-full text-left p-2 bg-purple-600 rounded">
+Dashboard
+</button>
+
+<button onclick="showPage('generator')" class="w-full text-left p-2 hover:bg-gray-700 rounded">
+Generator
+</button>
+
+<button onclick="showPage('keys')" class="w-full text-left p-2 hover:bg-gray-700 rounded">
+Keys
+</button>
+
+<button onclick="showPage('stock')" class="w-full text-left p-2 hover:bg-gray-700 rounded">
+Stock
+</button>
+
+</div>
+
+<div class="mt-auto">
+<button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">
+Logout
+</button>
+</div>
+
+</div>
+
+<!-- MAIN -->
+<div class="flex-1 p-8">
+
+<!-- DASHBOARD PAGE -->
+<div id="dashboardPage">
+
+<h1 class="text-3xl mb-6 glow">Dashboard</h1>
+
+<div class="grid grid-cols-4 gap-4 mb-8">
+
+<div class="bg-[#111827] p-4 rounded-xl">
+<p class="text-gray-400">Total Generated</p>
+<h2 class="text-2xl">0</h2>
+</div>
+
+<div class="bg-[#111827] p-4 rounded-xl">
+<p class="text-gray-400">This Month</p>
+<h2 class="text-2xl">0</h2>
+</div>
+
+<div class="bg-[#111827] p-4 rounded-xl">
+<p class="text-gray-400">This Week</p>
+<h2 class="text-2xl">0</h2>
+</div>
+
+<div class="bg-[#111827] p-4 rounded-xl">
+<p class="text-gray-400">Today</p>
+<h2 class="text-2xl">0</h2>
+</div>
+
+</div>
+
+<div class="bg-[#111827] p-6 rounded-xl">
+<h2 class="text-xl mb-2">Subscription</h2>
+<p class="text-gray-400">NO PLAN</p>
+</div>
+
+</div>
+
+<!-- GENERATOR PAGE -->
+<div id="generatorPage" class="hidden">
+
+<h1 class="text-3xl mb-6 glow-green">Account Generator</h1>
+
+<div class="bg-[#111827] p-10 rounded-xl text-center">
+
+<h2 class="text-xl mb-2">Account stock is locked</h2>
+<p class="text-gray-400 mb-4">
+Redeem a key to unlock generator
+</p>
+
+<button onclick="redeemKey()" class="bg-green-500 px-6 py-2 rounded">
+Redeem Key
+</button>
+
+</div>
+
+</div>
+
+<!-- KEYS PAGE -->
+<div id="keysPage" class="hidden">
+
+<h1 class="text-3xl mb-6">Keys</h1>
+
+<input id="keyInput" placeholder="Enter key"
+class="p-3 bg-black rounded w-64">
+
+<button onclick="redeemKey()" class="bg-blue-500 p-3 ml-2 rounded">
+Redeem
+</button>
+
+</div>
+
+<!-- STOCK PAGE (ADMIN ONLY) -->
+<div id="stockPage" class="hidden">
+
+<h1 class="text-3xl mb-6 text-purple-400">Admin Stock Panel</h1>
+
+<div id="adminPanel"></div>
+
+</div>
+
+</div>
 
 <script>
+
+// AUTH CHECK
 let user = localStorage.getItem("loggedIn");
 let admin = localStorage.getItem("admin");
 
@@ -22,13 +148,48 @@ if (!user && !admin) {
   window.location.href = "login.html";
 }
 
-document.getElementById("user").innerText =
-  admin ? "Logged in as ADMIN" : "Logged in as: " + user;
+// PAGE SWITCH
+function showPage(page) {
+  document.getElementById("dashboardPage").classList.add("hidden");
+  document.getElementById("generatorPage").classList.add("hidden");
+  document.getElementById("keysPage").classList.add("hidden");
+  document.getElementById("stockPage").classList.add("hidden");
 
+  document.getElementById(page + "Page").classList.remove("hidden");
+}
+
+// KEY SYSTEM
+function redeemKey() {
+  let key = document.getElementById("keyInput")?.value;
+
+  if (key === "FREEKEY") {
+    localStorage.setItem("unlocked", "true");
+    alert("Unlocked!");
+  } else {
+    alert("Invalid key");
+  }
+}
+
+// ADMIN PANEL
+if (admin === "true") {
+  document.getElementById("adminPanel").innerHTML = `
+    <textarea id="stock" placeholder="Enter stock..." class="w-full h-40 bg-black p-4 rounded"></textarea>
+    <button onclick="saveStock()" class="bg-purple-500 p-3 mt-3 rounded">Save Stock</button>
+  `;
+}
+
+function saveStock() {
+  let stock = document.getElementById("stock").value;
+  localStorage.setItem("stock", stock);
+  alert("Stock saved");
+}
+
+// LOGOUT
 function logout() {
   localStorage.clear();
   window.location.href = "login.html";
 }
+
 </script>
 
 </body>
