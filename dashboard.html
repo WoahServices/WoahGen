@@ -13,13 +13,11 @@ body {
 .sidebar {
   background: rgba(7,13,24,0.9);
   backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(255,255,255,0.05);
 }
 
 .card {
   background: rgba(17,24,39,0.85);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.05);
   border-radius: 16px;
 }
 
@@ -29,12 +27,6 @@ body {
   background: linear-gradient(90deg,#00ccff,#00ff88);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-::-webkit-scrollbar { width:6px; }
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(#7c3aed,#00ff88);
-  border-radius:10px;
 }
 </style>
 </head>
@@ -46,11 +38,11 @@ body {
 
 <h1 class="logo mb-6">WOAHGEN</h1>
 
-<button onclick="showPage('dashboard')" class="p-2 bg-purple-600 rounded mb-1">Dashboard</button>
+<button onclick="showPage('dashboard')" class="p-2 bg-purple-600 rounded mb-2">Dashboard</button>
 <button onclick="showPage('generator')" class="p-2 hover:bg-white/10 rounded">Generator</button>
 
 <div class="mt-auto">
-<button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
+<button onclick="logout()" class="bg-red-500 w-full p-2 rounded">Logout</button>
 </div>
 
 </div>
@@ -60,8 +52,28 @@ body {
 
 <!-- DASHBOARD -->
 <div id="dashboardPage">
+
 <h1 class="text-3xl mb-6">Dashboard</h1>
-<p id="statusText" class="text-red-400">Locked</p>
+
+<div class="grid grid-cols-3 gap-6">
+
+<div class="card p-5">
+<p class="text-gray-400 text-sm">Status</p>
+<p id="statusText" class="text-red-400 text-xl">Locked</p>
+</div>
+
+<div class="card p-5">
+<p class="text-gray-400 text-sm">Account</p>
+<p id="userEmail" class="text-green-400 text-sm">Loading...</p>
+</div>
+
+<div class="card p-5">
+<p class="text-gray-400 text-sm">Access</p>
+<p id="accessType" class="text-purple-400">FREE</p>
+</div>
+
+</div>
+
 </div>
 
 <!-- GENERATOR -->
@@ -71,32 +83,26 @@ body {
 
 <div class="card p-6 max-w-md">
 
-<!-- LOCK -->
+<!-- LOCKED -->
 <div id="lockedBox">
 
-<p class="text-gray-400 mb-3 text-center">🔒 Generator Locked</p>
+<p class="text-center text-gray-400 mb-3">🔒 Generator Locked</p>
 
-<!-- 💳 BUY BUTTON -->
 <a href="https://woahservices.mysellauth.com/" target="_blank">
-  <button class="w-full bg-yellow-500 text-black font-bold p-2 rounded mb-3 hover:scale-105 transition">
-    💳 Buy Key
-  </button>
+<button class="w-full bg-yellow-500 text-black font-bold p-2 rounded mb-3">
+💳 Buy Key
+</button>
 </a>
 
-<!-- KEY INPUT -->
-<input id="keyInput" placeholder="Enter your key..." class="w-full p-3 bg-black rounded mb-3">
+<input id="keyInput" placeholder="WOAH-GEN-XXXX" class="w-full p-3 bg-black rounded mb-3">
 
-<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded hover:scale-105 transition">
+<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">
 Unlock Generator
 </button>
 
-<p class="text-xs text-gray-500 mt-2 text-center">
-Purchase a key to unlock generator access
-</p>
-
 </div>
 
-<!-- GEN -->
+<!-- UNLOCKED -->
 <div id="genBox" class="hidden">
 
 <select id="stockType" class="w-full p-2 bg-black rounded mb-3">
@@ -123,7 +129,7 @@ Generate
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
@@ -136,20 +142,20 @@ const db = getFirestore(app);
 
 let currentUser = null;
 
-// ✅ FIXED AUTH (NO FLICKER)
+// ✅ FIXED AUTH (NO LOOP)
 onAuthStateChanged(auth, async (user)=>{
   if(!user){
-    return window.location.href = "login.html";
+    return location.href = "login.html";
   }
 
-  // redirect admin OUT of user dashboard
   if(user.email === "pattonayinde27@gmail.com"){
-    return window.location.href = "admin-dashboard.html";
+    return location.href = "admin-dashboard.html";
   }
 
   currentUser = user;
 
-  // load user data
+  document.getElementById("userEmail").innerText = user.email;
+
   const ref = doc(db,"users",user.uid);
   const snap = await getDoc(ref);
 
@@ -166,13 +172,9 @@ window.showPage = (p)=>{
   document.getElementById(p+"Page").classList.remove("hidden");
 };
 
-// 🔑 FIXED KEY SYSTEM
+// 🔑 REDEEM FIXED
 window.redeemKey = async ()=>{
   let key = document.getElementById("keyInput").value.trim().toUpperCase();
-
-  if(!key.startsWith("WOAH-GEN-")){
-    return alert("Invalid key format");
-  }
 
   const ref = doc(db,"keys",key);
   const snap = await getDoc(ref);
@@ -181,10 +183,8 @@ window.redeemKey = async ()=>{
     return alert("Invalid or used key");
   }
 
-  // mark key used
   await updateDoc(ref,{used:true});
 
-  // unlock user
   await setDoc(doc(db,"users",currentUser.uid),{
     unlocked:true
   },{merge:true});
@@ -192,37 +192,36 @@ window.redeemKey = async ()=>{
   unlockUI();
 };
 
-// UI UNLOCK
+// 🔓 UI
 function unlockUI(){
   document.getElementById("lockedBox").classList.add("hidden");
   document.getElementById("genBox").classList.remove("hidden");
 
-  const status = document.getElementById("statusText");
-  status.innerText = "Unlocked";
-  status.classList.remove("text-red-400");
-  status.classList.add("text-green-400");
+  document.getElementById("statusText").innerText = "Unlocked";
+  document.getElementById("statusText").classList.remove("text-red-400");
+  document.getElementById("statusText").classList.add("text-green-400");
+
+  document.getElementById("accessType").innerText = "PREMIUM";
 }
 
-// 🎯 GENERATOR FIXED
+// ⚡ GENERATOR
 window.generate = async ()=>{
   let type = document.getElementById("stockType").value;
 
   const ref = doc(db,"stock","main");
   const snap = await getDoc(ref);
 
-  if(!snap.exists()) return alert("No stock");
-
   let data = snap.data();
   let list = data[type] || [];
 
-  if(list.length === 0) return alert("Out of stock");
+  if(list.length === 0){
+    return alert("Out of stock");
+  }
 
   let acc = list[0];
   list.shift();
 
-  await updateDoc(ref,{
-    [type]: list
-  });
+  await updateDoc(ref,{[type]: list});
 
   document.getElementById("output").innerText = acc;
 };
@@ -230,7 +229,7 @@ window.generate = async ()=>{
 // LOGOUT
 window.logout = ()=>{
   signOut(auth).then(()=>{
-    window.location.href = "login.html";
+    location.href = "login.html";
   });
 };
 </script>
