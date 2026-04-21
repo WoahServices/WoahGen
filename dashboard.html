@@ -10,14 +10,12 @@ body {
   background: radial-gradient(circle at top, #0b0f1a, #000);
 }
 
-/* sidebar */
 .sidebar {
   background: rgba(7,13,24,0.9);
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(255,255,255,0.05);
 }
 
-/* cards */
 .card {
   background: rgba(17,24,39,0.85);
   backdrop-filter: blur(12px);
@@ -25,7 +23,6 @@ body {
   border-radius: 16px;
 }
 
-/* logo */
 .logo {
   font-size: 22px;
   font-weight: 900;
@@ -34,7 +31,6 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* scrollbar */
 ::-webkit-scrollbar { width:6px; }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(#7c3aed,#00ff88);
@@ -113,10 +109,10 @@ Generate
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey:"AIzaSy...",
+  apiKey:"AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
   authDomain:"woahgen-602ae.firebaseapp.com",
   projectId:"woahgen-602ae"
 });
@@ -126,18 +122,23 @@ const db = getFirestore(app);
 
 let currentUser = null;
 
-// AUTH
+// ✅ FIXED AUTH (NO FLICKER)
 onAuthStateChanged(auth, async (user)=>{
-  if(!user) return location.href="login.html";
+  if(!user){
+    return window.location.href = "login.html";
+  }
 
-  // 🚫 BLOCK ADMIN FROM USER DASH
-  if(user.email==="pattonayinde27@gmail.com"){
-    return location.href="admin-dashboard.html";
+  // redirect admin OUT of user dashboard
+  if(user.email === "pattonayinde27@gmail.com"){
+    return window.location.href = "admin-dashboard.html";
   }
 
   currentUser = user;
 
-  const snap = await getDoc(doc(db,"users",user.uid));
+  // load user data
+  const ref = doc(db,"users",user.uid);
+  const snap = await getDoc(ref);
+
   if(snap.exists() && snap.data().unlocked){
     unlockUI();
   }
@@ -151,33 +152,44 @@ window.showPage = (p)=>{
   document.getElementById(p+"Page").classList.remove("hidden");
 };
 
-// KEY
+// 🔑 FIXED KEY SYSTEM
 window.redeemKey = async ()=>{
-  let key = document.getElementById("keyInput").value;
+  let key = document.getElementById("keyInput").value.trim().toUpperCase();
+
+  if(!key.startsWith("WOAH-GEN-")){
+    return alert("Invalid key format");
+  }
 
   const ref = doc(db,"keys",key);
   const snap = await getDoc(ref);
 
   if(!snap.exists() || snap.data().used){
-    return alert("Invalid key");
+    return alert("Invalid or used key");
   }
 
-  await setDoc(ref,{used:true});
-  await setDoc(doc(db,"users",currentUser.uid),{unlocked:true});
+  // mark key used
+  await updateDoc(ref,{used:true});
+
+  // unlock user
+  await setDoc(doc(db,"users",currentUser.uid),{
+    unlocked:true
+  },{merge:true});
 
   unlockUI();
 };
 
+// UI UNLOCK
 function unlockUI(){
   document.getElementById("lockedBox").classList.add("hidden");
   document.getElementById("genBox").classList.remove("hidden");
 
-  document.getElementById("statusText").innerText = "Unlocked";
-  document.getElementById("statusText").classList.remove("text-red-400");
-  document.getElementById("statusText").classList.add("text-green-400");
+  const status = document.getElementById("statusText");
+  status.innerText = "Unlocked";
+  status.classList.remove("text-red-400");
+  status.classList.add("text-green-400");
 }
 
-// GENERATE (FIREBASE STOCK)
+// 🎯 GENERATOR FIXED
 window.generate = async ()=>{
   let type = document.getElementById("stockType").value;
 
@@ -186,14 +198,16 @@ window.generate = async ()=>{
 
   if(!snap.exists()) return alert("No stock");
 
-  let data = snap.data()[type] || [];
-  if(data.length === 0) return alert("Out of stock");
+  let data = snap.data();
+  let list = data[type] || [];
 
-  let acc = data.shift();
+  if(list.length === 0) return alert("Out of stock");
 
-  await setDoc(ref,{
-    ...snap.data(),
-    [type]: data
+  let acc = list[0];
+  list.shift();
+
+  await updateDoc(ref,{
+    [type]: list
   });
 
   document.getElementById("output").innerText = acc;
@@ -201,7 +215,9 @@ window.generate = async ()=>{
 
 // LOGOUT
 window.logout = ()=>{
-  signOut(auth).then(()=>location.href="login.html");
+  signOut(auth).then(()=>{
+    window.location.href = "login.html";
+  });
 };
 </script>
 
