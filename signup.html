@@ -17,10 +17,6 @@ body {
   background: linear-gradient(90deg, #00ccff, #00ff88);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow:
-    0 0 10px #00ccff,
-    0 0 20px #00ff88,
-    0 0 40px #00ff88;
 }
 
 .glow {
@@ -64,26 +60,22 @@ Already have an account?
 
 </div>
 
-<!-- 🔥 FIREBASE SIGNUP -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
   authDomain: "woahgen-602ae.firebaseapp.com",
-  projectId: "woahgen-602ae",
-  storageBucket: "woahgen-602ae.firebasestorage.app",
-  messagingSenderId: "484403134603",
-  appId: "1:484403134603:web:177a61bacc055f4077d48e",
-  measurementId: "G-JC2NL3JS69"
-};
+  projectId: "woahgen-602ae"
+});
 
-const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// SIGNUP FUNCTION
+// SIGNUP
 window.signup = async function () {
 
   let email = document.getElementById("email").value.trim().toLowerCase();
@@ -110,15 +102,22 @@ window.signup = async function () {
   }
 
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const res = await createUserWithEmailAndPassword(auth, email, password);
+
+    // ✅ CREATE USER DATA (IMPORTANT)
+    await setDoc(doc(db, "users", res.user.uid), {
+      unlocked: false,
+      createdAt: Date.now()
+    });
+
     alert("Account created!");
     window.location.href = "login.html";
+
   } catch (err) {
     alert(err.message);
   }
 
 };
-
 </script>
 
 <!-- MATRIX -->
