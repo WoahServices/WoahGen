@@ -33,8 +33,6 @@ body { background: #050a14; }
 
 <button onclick="showPage('dashboard')" class="p-2 bg-purple-600 rounded mb-1">Dashboard</button>
 <button onclick="showPage('generator')" class="p-2 hover:bg-[#111827] rounded">Generator</button>
-<button onclick="showPage('redeem')" class="p-2 hover:bg-[#111827] rounded">Redeem Key</button>
-
 <button id="adminStockBtn" onclick="showPage('stock')" class="p-2 hover:bg-[#111827] rounded hidden">Stock</button>
 
 <div class="mt-auto">
@@ -56,30 +54,73 @@ body { background: #050a14; }
 
 <h1 class="text-3xl mb-6">Account Generator</h1>
 
-<div class="card p-6 text-center">
+<!-- STATS -->
+<div class="grid grid-cols-4 gap-4 mb-6">
 
-<!-- LOCKED -->
+<div class="card p-4">
+<p class="text-gray-400">Total Generated</p>
+<h2 id="totalGen" class="text-2xl">0</h2>
+</div>
+
+<div class="card p-4"><p class="text-gray-400">This Month</p><h2>0</h2></div>
+<div class="card p-4"><p class="text-gray-400">This Week</p><h2>0</h2></div>
+<div class="card p-4"><p class="text-gray-400">Today</p><h2>0</h2></div>
+
+</div>
+
+<div class="grid grid-cols-2 gap-6">
+
+<!-- LEFT -->
+<div class="card p-6">
+
+<h2 class="mb-4 text-lg">Generate Account</h2>
+
+<!-- LOCK -->
 <div id="lockedBox">
 
-<p class="mb-4 text-gray-400">Generator Locked</p>
+<p class="text-gray-400 mb-3">Generator Locked</p>
 
 <input id="keyInput" placeholder="Enter Key"
-class="p-3 bg-black rounded mb-3 w-full">
+class="w-full p-3 bg-black rounded mb-3">
 
-<button onclick="redeemKey()" class="bg-purple-600 px-6 py-2 rounded">
+<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">
 Unlock
 </button>
 
 </div>
 
-<!-- UNLOCKED -->
+<!-- UNLOCK -->
 <div id="genBox" class="hidden">
 
-<button onclick="generate()" class="bg-green-500 px-6 py-3 rounded">
-Generate Account
+<div class="space-y-3 mb-4">
+
+<button onclick="selectType('normal')" class="w-full p-3 bg-[#111827] rounded flex justify-between">
+Normal Account <span id="normalCount">0</span>
 </button>
 
-<p id="output" class="mt-4 text-green-400"></p>
+<button onclick="selectType('unchecked')" class="w-full p-3 bg-[#111827] rounded flex justify-between">
+Unchecked Account <span id="uncheckedCount">0</span>
+</button>
+
+<button onclick="selectType('hq')" class="w-full p-3 bg-[#111827] rounded flex justify-between">
+HQ Account <span id="hqCount">0</span>
+</button>
+
+</div>
+
+<button onclick="generate()" class="w-full bg-green-500 p-3 rounded">
+Generate
+</button>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="card p-6">
+
+<h2 class="mb-4 text-lg">Account Details</h2>
+<p id="output" class="text-green-400">Select an account</p>
 
 </div>
 
@@ -93,6 +134,12 @@ Generate Account
 <h1 class="text-3xl mb-6">Stock</h1>
 
 <div class="card p-6">
+
+<select id="stockType" class="w-full p-3 bg-black rounded mb-3">
+<option value="normal">Normal</option>
+<option value="unchecked">Unchecked</option>
+<option value="hq">HQ</option>
+</select>
 
 <textarea id="stockInput"
 class="w-full h-40 bg-black p-3 rounded mb-4"
@@ -110,20 +157,17 @@ Add Stock
 
 <script>
 
-// ADMIN BUTTON
+// ADMIN
 if (localStorage.getItem("admin") === "true") {
   document.getElementById("adminStockBtn").classList.remove("hidden");
 }
 
-// PAGE SWITCH FIX
+// NAV
 function showPage(page) {
-  const pages = ["dashboardPage","generatorPage","stockPage"];
-
-  pages.forEach(id => {
-    document.getElementById(id).classList.add("hidden");
+  ["dashboard","generator","stock"].forEach(p=>{
+    document.getElementById(p+"Page").classList.add("hidden");
   });
-
-  document.getElementById(page + "Page").classList.remove("hidden");
+  document.getElementById(page+"Page").classList.remove("hidden");
 }
 
 // KEY SYSTEM
@@ -132,44 +176,82 @@ function redeemKey() {
 
   if (key === "FREEKEY") {
     localStorage.setItem("unlocked", "true");
-
     document.getElementById("lockedBox").classList.add("hidden");
     document.getElementById("genBox").classList.remove("hidden");
-
   } else {
     alert("Invalid key");
   }
 }
 
-// CHECK IF ALREADY UNLOCKED
+// AUTO UNLOCK
 if (localStorage.getItem("unlocked") === "true") {
-  setTimeout(() => {
-    if (document.getElementById("lockedBox")) {
-      document.getElementById("lockedBox").classList.add("hidden");
-      document.getElementById("genBox").classList.remove("hidden");
-    }
-  }, 100);
+  setTimeout(()=>{
+    document.getElementById("lockedBox").classList.add("hidden");
+    document.getElementById("genBox").classList.remove("hidden");
+  },100);
 }
+
+// STOCK SYSTEM
+function getStock() {
+  return JSON.parse(localStorage.getItem("stockObj")) || {
+    normal: [],
+    unchecked: [],
+    hq: []
+  };
+}
+
+function saveStock(stock) {
+  localStorage.setItem("stockObj", JSON.stringify(stock));
+}
+
+function addStock() {
+  let type = document.getElementById("stockType").value;
+  let lines = document.getElementById("stockInput").value.split("\n");
+
+  let stock = getStock();
+  stock[type] = stock[type].concat(lines);
+
+  saveStock(stock);
+  updateCounts();
+
+  alert("Stock added!");
+}
+
+// COUNTS
+function updateCounts() {
+  let stock = getStock();
+
+  document.getElementById("normalCount").innerText = stock.normal.length;
+  document.getElementById("uncheckedCount").innerText = stock.unchecked.length;
+  document.getElementById("hqCount").innerText = stock.hq.length;
+}
+
+setTimeout(updateCounts, 200);
 
 // GENERATOR
-function generate() {
-  let stock = localStorage.getItem("stock");
+let selectedType = "normal";
 
-  if (!stock) return alert("No stock");
-
-  let list = stock.split("\n");
-  let acc = list.shift();
-
-  localStorage.setItem("stock", list.join("\n"));
-
-  document.getElementById("output").innerText = acc;
+function selectType(type) {
+  selectedType = type;
 }
 
-// ADD STOCK
-function addStock() {
-  let input = document.getElementById("stockInput").value;
-  localStorage.setItem("stock", input);
-  alert("Stock added!");
+function generate() {
+  let stock = getStock();
+  let list = stock[selectedType];
+
+  if (!list.length) return alert("No stock");
+
+  let acc = list.shift();
+  saveStock(stock);
+
+  document.getElementById("output").innerText = acc;
+
+  let total = localStorage.getItem("totalGen") || 0;
+  total++;
+  localStorage.setItem("totalGen", total);
+  document.getElementById("totalGen").innerText = total;
+
+  updateCounts();
 }
 
 // LOGOUT
