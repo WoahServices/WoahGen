@@ -2,60 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WoahGen</title>
+<title>WoahGen Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 body {
-  background: #02040a;
+  background: #050a14;
 }
 
-/* sidebar */
-.sidebar {
-  background: #050816;
-  border-right: 1px solid rgba(255,255,255,0.05);
-}
-
-/* logo */
-.logo {
-  font-weight: 800;
-  font-size: 22px;
-  background: linear-gradient(90deg,#00ccff,#00ff88);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* card */
 .card {
   background: #0b1220;
   border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 14px;
-  transition: 0.2s;
-}
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 15px rgba(0,255,136,0.2);
+  border-radius: 16px;
 }
 
-/* nav */
-.nav-btn {
-  padding: 10px;
-  border-radius: 8px;
-  transition: .2s;
-}
-.nav-btn:hover {
-  background: rgba(255,255,255,0.05);
-}
-.nav-active {
-  background: #1a1f35;
+.sidebar {
+  background: #070d18;
 }
 
-/* scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #00ff88;
+  background: #7c3aed;
+  border-radius: 10px;
 }
 </style>
 </head>
@@ -63,78 +33,63 @@ body {
 <body class="text-white flex">
 
 <!-- SIDEBAR -->
-<div class="sidebar w-64 h-screen flex flex-col overflow-y-auto">
+<div class="sidebar w-64 h-screen p-5 flex flex-col overflow-y-auto">
 
-<div class="p-4 border-b border-white/5">
-  <h1 class="logo">WoahGen</h1>
-</div>
+<h1 class="text-xl font-bold mb-6 text-purple-400">WoahGen</h1>
 
-<div class="p-4 text-sm">
+<p class="text-xs text-gray-400 mb-2">OVERVIEW</p>
+<button onclick="showPage('dashboard')" class="p-2 w-full text-left bg-purple-600 rounded mb-1">Dashboard</button>
+<button onclick="showPage('redeem')" class="p-2 w-full text-left hover:bg-[#111827] rounded">Redeem Key</button>
 
-<p class="text-gray-500 mb-2">OVERVIEW</p>
-<div class="space-y-1 mb-4">
-  <button onclick="showPage('dashboard')" class="nav-btn nav-active w-full text-left">Dashboard</button>
-</div>
+<p class="text-xs text-gray-400 mt-4 mb-2">SERVICES</p>
+<button onclick="showPage('generator')" class="p-2 w-full text-left hover:bg-[#111827] rounded">Generator</button>
+<button class="p-2 w-full text-left opacity-50">Botting</button>
+<button class="p-2 w-full text-left opacity-50">Email</button>
+<button class="p-2 w-full text-left opacity-50">History</button>
 
-<p class="text-gray-500 mb-2">SERVICES</p>
-<div class="space-y-1 mb-4">
-  <button onclick="showPage('generator')" class="nav-btn w-full text-left">Generator</button>
-  <button onclick="showPage('pricing')" class="nav-btn w-full text-left">Pricing</button>
-</div>
+<p class="text-xs text-gray-400 mt-4 mb-2">SHOP</p>
+<button onclick="showPage('shop')" class="p-2 w-full text-left hover:bg-[#111827] rounded">Shop</button>
+<button onclick="showPage('tokens')" class="p-2 w-full text-left hover:bg-[#111827] rounded">Tokens</button>
 
-<p class="text-gray-500 mb-2">ADMIN</p>
-<div class="space-y-1 mb-4">
-  <button onclick="showPage('keys')" class="nav-btn">Keys</button>
-  <button id="stockBtn" onclick="showPage('stock')" class="nav-btn hidden">Stock</button>
-</div>
+<p class="text-xs text-gray-400 mt-4 mb-2">ADMIN</p>
+<button id="adminStockBtn" onclick="showPage('stock')" class="p-2 w-full text-left hover:bg-[#111827] rounded hidden">Stock</button>
 
-<p class="text-gray-500 mb-2">SETTINGS</p>
-<div class="space-y-1 mb-4">
-  <button onclick="showPage('settings')" class="nav-btn">Settings</button>
-</div>
-
-</div>
-
-<div class="mt-auto p-4 border-t border-white/5 text-sm">
-  <p>Account</p>
-  <p class="text-gray-400">No Plan</p>
-  <button onclick="logout()" class="bg-red-500 w-full mt-3 p-2 rounded">
-    Logout
-  </button>
+<div class="mt-auto">
+<button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
 </div>
 
 </div>
 
 <!-- MAIN -->
-<div class="flex-1">
-
-<!-- TOP -->
-<div class="flex justify-between items-center p-4 border-b border-white/5">
-<h1 class="text-lg font-semibold">WoahGen</h1>
-
-<div class="flex gap-3">
-  <div class="card px-4 py-2">$0.00</div>
-  <button onclick="showPage('pricing')" class="bg-green-500 px-4 py-2 rounded">
-    Upgrade
-  </button>
-</div>
-</div>
-
-<div class="p-6">
+<div class="flex-1 p-6 overflow-y-auto h-screen">
 
 <!-- DASHBOARD -->
 <div id="dashboardPage">
 
+<h1 class="text-3xl mb-6">Dashboard</h1>
+
 <div class="grid grid-cols-4 gap-4 mb-6">
-<div class="card p-4"><p>Total Generated</p><h2 id="totalGen">0</h2></div>
-<div class="card p-4"><p>This Month</p><h2>0</h2></div>
-<div class="card p-4"><p>This Week</p><h2>0</h2></div>
-<div class="card p-4"><p>Today</p><h2>0</h2></div>
+
+<div class="card p-4">
+<p class="text-gray-400">Total Generated</p>
+<h2 class="text-2xl">0</h2>
 </div>
 
-<div class="card p-6">
-<p>Subscription</p>
-<p class="text-gray-400">NO PLAN</p>
+<div class="card p-4">
+<p class="text-gray-400">This Month</p>
+<h2>0</h2>
+</div>
+
+<div class="card p-4">
+<p class="text-gray-400">This Week</p>
+<h2>0</h2>
+</div>
+
+<div class="card p-4">
+<p class="text-gray-400">Today</p>
+<h2>0</h2>
+</div>
+
 </div>
 
 </div>
@@ -142,183 +97,96 @@ body {
 <!-- GENERATOR -->
 <div id="generatorPage" class="hidden">
 
-<h1 class="text-xl mb-4">Account Generator</h1>
+<h1 class="text-3xl mb-6">Account Generator</h1>
 
-<div class="card p-8 text-center">
+<div class="grid grid-cols-2 gap-6">
 
-<div id="lockedBox">
-<p class="mb-3">Stock locked</p>
+<!-- LEFT -->
+<div class="card p-6">
 
-<input id="keyInput2" class="p-2 bg-black rounded mb-3">
+<h2 class="mb-4">Generate Account</h2>
 
-<button onclick="redeemKey()" class="bg-indigo-600 px-4 py-2 rounded">
-Redeem
-</button>
-</div>
+<select id="type" class="w-full p-3 bg-black rounded mb-4">
+<option>Normal</option>
+<option>Unchecked</option>
+<option>HQ</option>
+</select>
 
-<div id="genBox" class="hidden">
-<button onclick="generateAccount()" class="bg-green-500 px-4 py-2 rounded">
+<button onclick="generate()" class="w-full bg-purple-600 p-3 rounded">
 Generate
 </button>
 
-<p id="result" class="mt-3 text-green-400"></p>
 </div>
 
-</div>
+<!-- RIGHT -->
+<div class="card p-6">
 
-</div>
-
-<!-- 💰 PRICING PAGE -->
-<div id="pricingPage" class="hidden">
-
-<h1 class="text-2xl mb-6">Pricing</h1>
-
-<div class="grid grid-cols-3 gap-6">
-
-<!-- BASIC -->
-<div class="card p-6 text-center">
-<h2 class="text-xl mb-2">Basic</h2>
-<p class="mb-4 text-gray-400">$5</p>
-
-<a href="https://woahservices.mysellauth.com/" target="_blank">
-<button class="bg-green-500 px-6 py-2 rounded w-full">
-Buy Now
-</button>
-</a>
-</div>
-
-<!-- PRO -->
-<div class="card p-6 text-center">
-<h2 class="text-xl mb-2">Pro</h2>
-<p class="mb-4 text-gray-400">$10</p>
-
-<a href="https://woahservices.mysellauth.com/" target="_blank">
-<button class="bg-blue-500 px-6 py-2 rounded w-full">
-Buy Now
-</button>
-</a>
-</div>
-
-<!-- PREMIUM -->
-<div class="card p-6 text-center">
-<h2 class="text-xl mb-2">Premium</h2>
-<p class="mb-4 text-gray-400">$20</p>
-
-<a href="https://woahservices.mysellauth.com/" target="_blank">
-<button class="bg-purple-600 px-6 py-2 rounded w-full">
-Buy Now
-</button>
-</a>
-</div>
+<h2 class="mb-4">Account Output</h2>
+<p id="output" class="text-green-400">None yet</p>
 
 </div>
 
 </div>
 
-<!-- KEYS -->
-<div id="keysPage" class="hidden">
-<button onclick="generateKey()" class="bg-purple-600 p-3 rounded">
-Generate Key
-</button>
 </div>
 
 <!-- STOCK -->
 <div id="stockPage" class="hidden">
-<textarea id="stock" class="w-full h-40 bg-black p-4"></textarea>
-<button onclick="saveStock()" class="bg-purple-500 p-3 mt-3">Save</button>
-</div>
 
-<!-- SETTINGS -->
-<div id="settingsPage" class="hidden">
-<input id="newPass" placeholder="New Password" class="p-2 bg-black mb-2">
-<button onclick="changePassword()" class="bg-green-500 p-2">
-Update
+<h1 class="text-3xl mb-6">Stock</h1>
+
+<div class="card p-6">
+
+<textarea id="stockInput" class="w-full h-40 bg-black p-3 rounded mb-4"
+placeholder="user:pass"></textarea>
+
+<button onclick="addStock()" class="bg-purple-600 px-6 py-2 rounded">
+Add Stock
 </button>
+
 </div>
 
 </div>
+
 </div>
 
 <script>
-// AUTH
-let user = localStorage.getItem("loggedIn");
-let admin = localStorage.getItem("admin");
 
-if (!user && admin !== "true") {
-  window.location.href = "login.html";
+// ADMIN SHOW
+if (localStorage.getItem("admin") === "true") {
+  document.getElementById("adminStockBtn").classList.remove("hidden");
 }
 
-window.onload = () => {
-  if (admin === "true") {
-    document.getElementById("stockBtn").classList.remove("hidden");
-  }
-
-  document.getElementById("totalGen").innerText =
-    localStorage.getItem("generated") || 0;
-};
-
-// NAV
+// PAGE SWITCH
 function showPage(page) {
-  ["dashboard","generator","keys","stock","settings","pricing"].forEach(p=>{
-    let el = document.getElementById(p+"Page");
-    if (el) el.classList.add("hidden");
+  ["dashboard","generator","stock"].forEach(p=>{
+    document.getElementById(p+"Page").classList.add("hidden");
   });
-
   document.getElementById(page+"Page").classList.remove("hidden");
 }
 
-// KEYS
-function generateKey() {
-  let key = "WOAH-" + Math.random().toString(36).substring(2,10).toUpperCase();
-  let keys = JSON.parse(localStorage.getItem("keys") || "[]");
-  keys.push({ code: key, used: false });
-  localStorage.setItem("keys", JSON.stringify(keys));
-  alert(key);
-}
-
-function redeemKey() {
-  let input = document.getElementById("keyInput2").value;
-  let keys = JSON.parse(localStorage.getItem("keys") || "[]");
-
-  let found = keys.find(k => k.code === input && !k.used);
-
-  if (found) {
-    found.used = true;
-    localStorage.setItem("keys", JSON.stringify(keys));
-    localStorage.setItem("unlocked", "true");
-
-    document.getElementById("lockedBox").classList.add("hidden");
-    document.getElementById("genBox").classList.remove("hidden");
-  } else alert("Invalid key");
-}
-
-// STOCK
-function saveStock() {
-  localStorage.setItem("stock", document.getElementById("stock").value);
-}
-
 // GENERATOR
-function generateAccount() {
+function generate() {
   let stock = localStorage.getItem("stock");
-  if (!stock) return alert("No stock");
 
-  let lines = stock.split("\n");
-  let acc = lines.shift();
+  if (!stock) {
+    alert("No stock");
+    return;
+  }
 
-  localStorage.setItem("stock", lines.join("\n"));
-  document.getElementById("result").innerText = acc;
+  let list = stock.split("\n");
+  let acc = list.shift();
 
-  let total = parseInt(localStorage.getItem("generated") || "0");
-  total++;
-  localStorage.setItem("generated", total);
-  document.getElementById("totalGen").innerText = total;
+  localStorage.setItem("stock", list.join("\n"));
+
+  document.getElementById("output").innerText = acc;
 }
 
-// PASSWORD
-function changePassword() {
-  let newPass = document.getElementById("newPass").value;
-  localStorage.setItem("adminPass", newPass);
-  alert("Password updated");
+// ADD STOCK
+function addStock() {
+  let input = document.getElementById("stockInput").value;
+  localStorage.setItem("stock", input);
+  alert("Stock added!");
 }
 
 // LOGOUT
@@ -326,6 +194,7 @@ function logout() {
   localStorage.clear();
   window.location.href = "login.html";
 }
+
 </script>
 
 </body>
