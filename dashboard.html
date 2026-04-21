@@ -49,7 +49,6 @@ body {
 <div class="flex justify-end items-center p-4 border-b border-white/5">
 <div class="bg-[#111827] px-4 py-2 rounded-lg flex items-center gap-4">
 <span class="text-green-400">$0.00</span>
-<button class="bg-purple-600 px-4 py-1 rounded">Redeem Key</button>
 </div>
 </div>
 
@@ -101,7 +100,8 @@ body {
 <div id="lockedBox">
 <p class="mb-4">Account stock is locked</p>
 
-<input id="keyInput2" class="p-3 bg-black rounded mb-3">
+<input id="keyInput2" placeholder="Enter key"
+class="p-3 bg-black rounded mb-3">
 
 <br>
 
@@ -117,6 +117,38 @@ Generate
 
 <p id="result" class="mt-4 text-green-400"></p>
 </div>
+
+</div>
+
+</div>
+
+<!-- KEYS (ADMIN) -->
+<div id="keysPage" class="hidden">
+
+<h1 class="text-3xl mb-6">Key Generator</h1>
+
+<div class="card p-6">
+<button onclick="generateKey()" class="bg-purple-600 p-3 rounded">
+Generate Key
+</button>
+</div>
+
+</div>
+
+<!-- STOCK (ADMIN) -->
+<div id="stockPage" class="hidden">
+
+<h1 class="text-3xl mb-6 text-purple-400">Stock Panel</h1>
+
+<div class="card p-6">
+
+<textarea id="stock"
+placeholder="user:pass per line"
+class="w-full h-40 bg-black p-4 rounded"></textarea>
+
+<button onclick="saveStock()" class="bg-purple-500 p-3 mt-3 rounded">
+Save Stock
+</button>
 
 </div>
 
@@ -147,40 +179,85 @@ Update Password
 <script>
 
 // AUTH
+let user = localStorage.getItem("loggedIn");
 let admin = localStorage.getItem("admin");
 
+if (!user && admin !== "true") {
+  window.location.href = "login.html";
+}
+
+// SHOW ADMIN BUTTON
 if (admin === "true") {
   document.getElementById("stockBtn").classList.remove("hidden");
 }
 
 // PAGE SWITCH
 function showPage(page) {
-  ["dashboard","generator","settings"].forEach(p=>{
-    document.getElementById(p+"Page").classList.add("hidden");
+  ["dashboard","generator","keys","stock","settings"].forEach(p=>{
+    let el = document.getElementById(p+"Page");
+    if (el) el.classList.add("hidden");
   });
+
   document.getElementById(page+"Page").classList.remove("hidden");
 }
 
-// PASSWORD CHANGE
-function changePassword() {
-  let newPass = document.getElementById("newPass").value;
-  localStorage.setItem("adminPass", newPass);
-  alert("Updated!");
+// ================= KEY SYSTEM =================
+
+function generateKey() {
+  let key = "WOAH-" + Math.random().toString(36).substring(2,10).toUpperCase();
+
+  let keys = JSON.parse(localStorage.getItem("keys") || "[]");
+
+  keys.push({ code: key, used: false });
+
+  localStorage.setItem("keys", JSON.stringify(keys));
+
+  alert("Key: " + key);
 }
 
-// KEY SYSTEM
 function redeemKey() {
-  if (document.getElementById("keyInput2").value === "FREEKEY") {
+  let input = document.getElementById("keyInput2").value;
+
+  let keys = JSON.parse(localStorage.getItem("keys") || "[]");
+
+  let found = keys.find(k => k.code === input && !k.used);
+
+  if (found) {
+    found.used = true;
+    localStorage.setItem("keys", JSON.stringify(keys));
+
     localStorage.setItem("unlocked", "true");
+
     document.getElementById("lockedBox").classList.add("hidden");
     document.getElementById("genBox").classList.remove("hidden");
+
+    alert("Unlocked!");
+  } else {
+    alert("Invalid or used key");
   }
 }
 
-// GENERATOR
+// ================= STOCK =================
+
+function saveStock() {
+  let stock = document.getElementById("stock").value;
+  localStorage.setItem("stock", stock);
+  alert("Stock saved");
+}
+
+// ================= GENERATOR =================
+
 function generateAccount() {
+
+  if (localStorage.getItem("unlocked") !== "true") {
+    return alert("Redeem key first");
+  }
+
   let stock = localStorage.getItem("stock");
-  if (!stock) return alert("No stock");
+
+  if (!stock || stock.trim() === "") {
+    return alert("No stock");
+  }
 
   let lines = stock.split("\n");
   let acc = lines.shift();
@@ -188,11 +265,51 @@ function generateAccount() {
   localStorage.setItem("stock", lines.join("\n"));
 
   document.getElementById("result").innerText = acc;
+
+  let total = parseInt(localStorage.getItem("generated") || "0");
+  total++;
+
+  localStorage.setItem("generated", total);
+  document.getElementById("totalGen").innerText = total;
+}
+
+// LOAD STATS
+document.getElementById("totalGen").innerText =
+  localStorage.getItem("generated") || 0;
+
+// ================= PASSWORD =================
+
+function changePassword() {
+  let oldPass = document.getElementById("oldPass").value;
+  let newPass = document.getElementById("newPass").value;
+
+  if (admin === "true") {
+    let saved = localStorage.getItem("adminPass");
+
+    if (oldPass === saved) {
+      localStorage.setItem("adminPass", newPass);
+      alert("Admin password updated");
+    } else {
+      alert("Wrong password");
+    }
+  } else {
+    let email = localStorage.getItem("loggedIn");
+    let user = JSON.parse(localStorage.getItem(email));
+
+    if (user.password === oldPass) {
+      user.password = newPass;
+      localStorage.setItem(email, JSON.stringify(user));
+      alert("Password updated");
+    } else {
+      alert("Wrong password");
+    }
+  }
 }
 
 // LOGOUT
 function logout() {
-  localStorage.clear();
+  localStorage.removeItem("loggedIn");
+  localStorage.removeItem("admin");
   window.location.href = "login.html";
 }
 
