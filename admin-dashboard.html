@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WoahGen Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body { background:#050a14; }
+.sidebar { background:#070d18; }
+.card { background:#0b1220; border-radius:16px; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-thumb { background:#7c3aed; border-radius:10px; }
+</style>
+</head>
+
+<body class="flex text-white">
+
+<!-- SIDEBAR -->
+<div class="sidebar w-64 h-screen p-5 flex flex-col overflow-y-auto">
+
+<h1 class="text-xl font-bold mb-6 text-purple-400">WoahGen</h1>
+
+<p class="text-gray-400 text-xs mb-2 uppercase">Admin</p>
+
+<button onclick="showPage('overview')" class="p-2 hover:bg-[#111827] rounded text-left">🛡️ Overview</button>
+<button onclick="showPage('users')" class="p-2 hover:bg-[#111827] rounded text-left">👥 Users</button>
+<button onclick="showPage('keys')" class="p-2 hover:bg-[#111827] rounded text-left">🔑 Keys</button>
+<button onclick="showPage('stock')" class="p-2 hover:bg-[#111827] rounded text-left">📦 Stock</button>
+<button onclick="showPage('gen')" class="p-2 hover:bg-[#111827] rounded text-left">📊 Generations</button>
+
+<div class="mt-auto">
+<button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
+</div>
+
+</div>
+
+<!-- MAIN -->
+<div class="flex-1 p-6 overflow-y-auto h-screen">
+
+<!-- OVERVIEW -->
+<div id="overviewPage">
+<h1 class="text-3xl mb-6">Admin Overview</h1>
+<p class="text-gray-400">System stats coming next step...</p>
+</div>
+
+<!-- USERS -->
+<div id="usersPage" class="hidden">
+<h1 class="text-3xl mb-6">Users</h1>
+<p class="text-gray-400">User list coming next step...</p>
+</div>
+
+<!-- KEYS -->
+<div id="keysPage" class="hidden">
+<h1 class="text-3xl mb-6">Key Generator</h1>
+
+<div class="card p-6">
+<button onclick="createKey()" class="bg-purple-600 px-6 py-2 rounded mb-4">
+Generate Key
+</button>
+
+<p id="newKey" class="text-green-400"></p>
+</div>
+</div>
+
+<!-- STOCK -->
+<div id="stockPage" class="hidden">
+<h1 class="text-3xl mb-6">Stock</h1>
+
+<div class="card p-6">
+<textarea id="stockInput" class="w-full h-40 bg-black p-3 rounded mb-4" placeholder="user:pass"></textarea>
+
+<select id="stockType" class="w-full p-2 bg-black rounded mb-3">
+<option value="normal">Normal</option>
+<option value="unchecked">Unchecked</option>
+<option value="hq">HQ</option>
+</select>
+
+<button onclick="addStock()" class="bg-purple-600 px-6 py-2 rounded">
+Add Stock
+</button>
+</div>
+</div>
+
+<!-- GENERATIONS -->
+<div id="genPage" class="hidden">
+<h1 class="text-3xl mb-6">Generations</h1>
+<p class="text-gray-400">Logs coming next step...</p>
+</div>
+
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
+  authDomain: "woahgen-602ae.firebaseapp.com",
+  projectId: "woahgen-602ae",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
+
+let currentUser = null;
+
+// 🔐 AUTH CHECK (ADMIN ONLY)
+onAuthStateChanged(auth, (user) => {
+  if (!user) return window.location.href = "login.html";
+
+  if (user.email !== "pattonayinde27@gmail.com") {
+    alert("Not authorized");
+    window.location.href = "dashboard.html";
+  }
+
+  currentUser = user;
+});
+
+// NAV
+window.showPage = function(page){
+  ["overview","users","keys","stock","gen"].forEach(p=>{
+    document.getElementById(p+"Page").classList.add("hidden");
+  });
+  document.getElementById(page+"Page").classList.remove("hidden");
+};
+
+// 🔑 CREATE KEY (FIREBASE)
+window.createKey = async function(){
+  let key = "WOAH-GEN-" + Math.floor(1000 + Math.random()*9000);
+
+  await setDoc(doc(db, "keys", key), {
+    used: false,
+    createdAt: Date.now()
+  });
+
+  document.getElementById("newKey").innerText = key;
+};
+
+// 📦 ADD STOCK (FIREBASE)
+window.addStock = async function(){
+  let type = document.getElementById("stockType").value;
+  let lines = document.getElementById("stockInput").value.split("\n");
+
+  const ref = doc(db, "stock", "main");
+  const snap = await getDoc(ref);
+
+  let data = snap.exists() ? snap.data() : { normal:[], unchecked:[], hq:[] };
+
+  data[type] = data[type].concat(lines);
+
+  await setDoc(ref, data);
+
+  alert("Stock added to Firebase");
+};
+
+// 🚪 LOGOUT
+window.logout = function(){
+  signOut(auth);
+};
+</script>
+
+</body>
+</html>
