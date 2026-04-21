@@ -2,132 +2,72 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WoahGen Dashboard</title>
+<title>Admin Login - WoahGen</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body { background: #050a14; }
-
-.card {
-  background: #0b1220;
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 16px;
+body {
+  background: radial-gradient(circle at top, #0b0f1a, #000);
+  overflow: hidden;
 }
 
-.sidebar { background: #070d18; }
+.woah-text {
+  font-size: 40px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #00ccff, #00ff88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 10px #00ccff,
+    0 0 20px #00ff88,
+    0 0 40px #00ff88;
+}
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb {
-  background: #7c3aed;
-  border-radius: 10px;
+.glow-purple {
+  text-shadow: 0 0 10px #a855f7, 0 0 20px #a855f7;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 </style>
 </head>
 
-<body class="text-white flex">
+<body class="flex items-center justify-center h-screen text-white">
 
-<!-- SIDEBAR -->
-<div class="sidebar w-64 h-screen p-5 flex flex-col overflow-y-auto">
+<canvas id="matrix"></canvas>
 
-<h1 class="text-xl font-bold mb-6 text-purple-400">WoahGen</h1>
+<div class="bg-[#111827]/90 backdrop-blur p-8 rounded-xl w-96 shadow-lg border border-purple-500/30">
 
-<button onclick="showPage('dashboard')" class="p-2 bg-purple-600 rounded mb-1">Dashboard</button>
-<button onclick="showPage('generator')" class="p-2 hover:bg-[#111827] rounded">Generator</button>
+<h1 class="woah-text text-center mb-4">WOAH SERVICES</h1>
 
-<button id="adminStockBtn" onclick="showPage('stock')" class="p-2 hover:bg-[#111827] rounded hidden">Stock</button>
+<h2 class="text-xl mb-6 text-center glow-purple">Admin Access</h2>
 
-<div class="mt-auto">
-<button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
-</div>
+<input id="adminEmail" placeholder="Admin Email"
+class="w-full p-3 mb-3 bg-[#0b0f1a] rounded outline-none">
 
-</div>
+<input id="adminPass" type="password" placeholder="Admin Password"
+class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
 
-<!-- MAIN -->
-<div class="flex-1 p-6 overflow-y-auto h-screen">
-
-<div id="dashboardPage">
-<h1 class="text-3xl mb-6">Dashboard</h1>
-</div>
-
-<div id="generatorPage" class="hidden">
-
-<h1 class="text-3xl mb-6">Account Generator</h1>
-
-<div class="grid grid-cols-4 gap-4 mb-6">
-<div class="card p-4">
-<p class="text-gray-400">Total Generated</p>
-<h2 id="totalGen" class="text-2xl">0</h2>
-</div>
-<div class="card p-4"><p class="text-gray-400">This Month</p><h2>0</h2></div>
-<div class="card p-4"><p class="text-gray-400">This Week</p><h2>0</h2></div>
-<div class="card p-4"><p class="text-gray-400">Today</p><h2>0</h2></div>
-</div>
-
-<div class="grid grid-cols-2 gap-6">
-
-<div class="card p-6">
-
-<h2 class="mb-4 text-lg">Generate Account</h2>
-
-<div id="lockedBox">
-<p class="text-gray-400 mb-3">Generator Locked</p>
-<input id="keyInput" class="w-full p-3 bg-black rounded mb-3">
-<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">Unlock</button>
-</div>
-
-<div id="genBox" class="hidden">
-<div class="space-y-3 mb-4">
-
-<button onclick="selectType('normal')" class="w-full p-3 bg-[#111827] rounded flex justify-between">
-Normal <span id="normalCount">0</span>
+<button onclick="adminLogin()"
+class="w-full bg-purple-600 p-3 rounded hover:scale-105 transition">
+Login as Admin
 </button>
 
-<button onclick="selectType('unchecked')" class="w-full p-3 bg-[#111827] rounded flex justify-between">
-Unchecked <span id="uncheckedCount">0</span>
-</button>
-
-<button onclick="selectType('hq')" class="w-full p-3 bg-[#111827] rounded flex justify-between">
-HQ <span id="hqCount">0</span>
-</button>
+<p class="text-sm text-gray-400 mt-4 text-center">
+<a href="login.html" class="text-green-400">Back to Login</a>
+</p>
 
 </div>
 
-<button onclick="generate()" class="w-full bg-green-500 p-3 rounded">Generate</button>
-</div>
-
-</div>
-
-<div class="card p-6">
-<h2 class="mb-4 text-lg">Account Details</h2>
-<p id="output" class="text-green-400">Select an account</p>
-</div>
-
-</div>
-</div>
-
-<div id="stockPage" class="hidden">
-<h1 class="text-3xl mb-6">Stock</h1>
-
-<div class="card p-6">
-<select id="stockType" class="w-full p-3 bg-black rounded mb-3">
-<option value="normal">Normal</option>
-<option value="unchecked">Unchecked</option>
-<option value="hq">HQ</option>
-</select>
-
-<textarea id="stockInput" class="w-full h-40 bg-black p-3 rounded mb-4"></textarea>
-
-<button onclick="addStock()" class="bg-purple-600 px-6 py-2 rounded">Add Stock</button>
-</div>
-</div>
-
-</div>
-
-<!-- 🔐 FIREBASE SECURITY -->
+<!-- 🔐 FIREBASE ADMIN LOGIN -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
@@ -141,104 +81,74 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 🚫 BLOCK UNAUTHORIZED USERS
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "login.html";
+// ADMIN LOGIN
+window.adminLogin = async function() {
+
+  let email = document.getElementById("adminEmail").value.trim().toLowerCase();
+  let pass = document.getElementById("adminPass").value.trim();
+
+  if (!email || !pass) {
+    alert("Fill all fields");
+    return;
   }
-});
 
-// 👑 ADMIN UI
-if (localStorage.getItem("admin") === "true") {
-  document.getElementById("adminStockBtn").classList.remove("hidden");
-}
-
-// NAV
-window.showPage = function(page) {
-  ["dashboard","generator","stock"].forEach(p=>{
-    document.getElementById(p+"Page").classList.add("hidden");
-  });
-  document.getElementById(page+"Page").classList.remove("hidden");
-};
-
-// KEY SYSTEM (TEMP)
-window.redeemKey = function() {
-  let key = document.getElementById("keyInput").value;
-
-  if (key.startsWith("WOAH-GEN-")) {
-    localStorage.setItem("unlocked", "true");
-    document.getElementById("lockedBox").classList.add("hidden");
-    document.getElementById("genBox").classList.remove("hidden");
-  } else {
-    alert("Invalid key");
+  // 🚫 ONLY YOUR EMAIL ALLOWED
+  if (email !== "pattonayinde27@gmail.com") {
+    alert("Not authorized");
+    return;
   }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+
+    localStorage.setItem("admin", "true");
+    localStorage.removeItem("loggedIn");
+
+    window.location.href = "dashboard.html";
+
+  } catch (err) {
+    alert("Wrong admin login");
+  }
+
 };
 
-// AUTO UNLOCK
-if (localStorage.getItem("unlocked") === "true") {
-  setTimeout(()=>{
-    document.getElementById("lockedBox").classList.add("hidden");
-    document.getElementById("genBox").classList.remove("hidden");
-  },100);
+</script>
+
+<!-- MATRIX -->
+<script>
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const letters = "01WOAH";
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+
+const drops = [];
+
+for (let i = 0; i < columns; i++) drops[i] = 1;
+
+function draw() {
+  ctx.fillStyle = "rgba(0,0,0,0.05)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#00ff88";
+  ctx.font = fontSize + "px monospace";
+
+  for (let i = 0; i < drops.length; i++) {
+    let text = letters[Math.floor(Math.random() * letters.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.97)
+      drops[i] = 0;
+
+    drops[i]++;
+  }
 }
 
-// STOCK
-function getStock() {
-  return JSON.parse(localStorage.getItem("stockObj")) || {normal:[],unchecked:[],hq:[]};
-}
-function saveStock(s) { localStorage.setItem("stockObj", JSON.stringify(s)); }
-
-window.addStock = function() {
-  let type = document.getElementById("stockType").value;
-  let lines = document.getElementById("stockInput").value.split("\n");
-
-  let stock = getStock();
-  stock[type] = stock[type].concat(lines);
-  saveStock(stock);
-
-  updateCounts();
-  alert("Stock added!");
-};
-
-function updateCounts() {
-  let s = getStock();
-  document.getElementById("normalCount").innerText = s.normal.length;
-  document.getElementById("uncheckedCount").innerText = s.unchecked.length;
-  document.getElementById("hqCount").innerText = s.hq.length;
-}
-
-setTimeout(updateCounts, 200);
-
-// GENERATOR
-let selectedType = "normal";
-window.selectType = (t)=> selectedType = t;
-
-window.generate = function() {
-  let stock = getStock();
-  let list = stock[selectedType];
-
-  if (!list.length) return alert("No stock");
-
-  let acc = list.shift();
-  saveStock(stock);
-
-  document.getElementById("output").innerText = acc;
-
-  let total = localStorage.getItem("totalGen") || 0;
-  total++;
-  localStorage.setItem("totalGen", total);
-  document.getElementById("totalGen").innerText = total;
-
-  updateCounts();
-};
-
-// LOGOUT (REAL)
-window.logout = function() {
-  signOut(auth);
-  localStorage.clear();
-  window.location.href = "login.html";
-};
-
+setInterval(draw, 30);
 </script>
 
 </body>
