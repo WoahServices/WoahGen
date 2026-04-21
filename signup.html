@@ -69,22 +69,22 @@ Already have an account?
 <!-- SIGNUP SCRIPT -->
 <script>
 function signup() {
-  let email = document.getElementById("email").value.trim();
+  let email = document.getElementById("email").value.trim().toLowerCase();
   let password = document.getElementById("password").value.trim();
 
-  // BLOCK ADMIN EMAIL
+  // 🚫 block admin email
   if (email === "pattonayinde27@gmail.com") {
     alert("This email is reserved.");
     return;
   }
 
-  // VALIDATION
+  // ✅ validation
   if (!email || !password) {
     alert("Fill all fields");
     return;
   }
 
-  if (!email.includes("@")) {
+  if (!email.includes("@") || email.length < 5) {
     alert("Enter a valid email");
     return;
   }
@@ -99,10 +99,16 @@ function signup() {
     return;
   }
 
-  // SAVE USER
-  localStorage.setItem(email, JSON.stringify({
-    password: password
-  }));
+  // 💾 SAVE FULL USER STRUCTURE (IMPORTANT FOR DASHBOARD)
+  const userData = {
+    password: password,
+    plan: "FREE",
+    tokens: 0,
+    generated: 0,
+    created: Date.now()
+  };
+
+  localStorage.setItem(email, JSON.stringify(userData));
 
   alert("Account created!");
   window.location.href = "login.html";
