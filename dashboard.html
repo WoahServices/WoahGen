@@ -6,29 +6,52 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body { background: #050a14; }
-.card { background: #0b1220; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; }
-.sidebar { background: #070d18; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 10px; }
+body {
+  background: radial-gradient(circle at top, #0b0f1a, #000);
+}
+
+/* sidebar */
+.sidebar {
+  background: rgba(7,13,24,0.9);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+/* cards */
+.card {
+  background: rgba(17,24,39,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+}
+
+/* logo */
+.logo {
+  font-size: 22px;
+  font-weight: 900;
+  background: linear-gradient(90deg,#00ccff,#00ff88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#7c3aed,#00ff88);
+  border-radius:10px;
+}
 </style>
 </head>
 
 <body class="text-white flex">
 
 <!-- SIDEBAR -->
-<div class="sidebar w-64 h-screen p-5 flex flex-col overflow-y-auto">
+<div class="sidebar w-64 h-screen p-5 flex flex-col">
 
-<h1 class="text-xl font-bold mb-6 text-purple-400">WoahGen</h1>
+<h1 class="logo mb-6">WOAHGEN</h1>
 
 <button onclick="showPage('dashboard')" class="p-2 bg-purple-600 rounded mb-1">Dashboard</button>
-<button onclick="showPage('generator')" class="p-2 hover:bg-[#111827] rounded">Generator</button>
-
-<!-- ADMIN -->
-<div id="adminSection" class="hidden">
-<button onclick="showPage('stock')" class="p-2 hover:bg-[#111827] rounded">Stock</button>
-<button onclick="showPage('keys')" class="p-2 hover:bg-[#111827] rounded">Key Generator</button>
-</div>
+<button onclick="showPage('generator')" class="p-2 hover:bg-white/10 rounded">Generator</button>
 
 <div class="mt-auto">
 <button onclick="logout()" class="bg-red-500 w-full p-2 rounded mt-6">Logout</button>
@@ -37,52 +60,49 @@ body { background: #050a14; }
 </div>
 
 <!-- MAIN -->
-<div class="flex-1 p-6 overflow-y-auto h-screen">
+<div class="flex-1 p-8">
 
 <!-- DASHBOARD -->
 <div id="dashboardPage">
 <h1 class="text-3xl mb-6">Dashboard</h1>
+<p id="statusText" class="text-red-400">Locked</p>
 </div>
 
 <!-- GENERATOR -->
 <div id="generatorPage" class="hidden">
 
-<h1 class="text-3xl mb-6">Account Generator</h1>
+<h1 class="text-3xl mb-6">Generator</h1>
 
-<div class="card p-6 mb-6">
+<div class="card p-6 max-w-md">
 
+<!-- LOCK -->
 <div id="lockedBox">
-<p class="text-gray-400 mb-3">Generator Locked</p>
-<input id="keyInput" placeholder="Enter Key" class="w-full p-3 bg-black rounded mb-3">
-<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">Unlock</button>
+<p class="text-gray-400 mb-3">Enter key to unlock</p>
+
+<input id="keyInput" class="w-full p-3 bg-black rounded mb-3">
+
+<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">
+Unlock
+</button>
 </div>
 
+<!-- GEN -->
 <div id="genBox" class="hidden">
-<button onclick="generate()" class="w-full bg-green-500 p-3 rounded">Generate</button>
+
+<select id="stockType" class="w-full p-2 bg-black rounded mb-3">
+<option value="normal">Normal</option>
+<option value="unchecked">Unchecked</option>
+<option value="hq">HQ</option>
+</select>
+
+<button onclick="generate()" class="w-full bg-green-500 p-3 rounded">
+Generate
+</button>
+
 <p id="output" class="mt-4 text-green-400"></p>
-</div>
 
 </div>
 
-</div>
-
-<!-- STOCK -->
-<div id="stockPage" class="hidden">
-<h1 class="text-3xl mb-6">Stock</h1>
-
-<div class="card p-6">
-<textarea id="stockInput" class="w-full h-40 bg-black p-3 rounded mb-4" placeholder="user:pass"></textarea>
-<button onclick="addStock()" class="bg-purple-600 px-6 py-2 rounded">Add Stock</button>
-</div>
-</div>
-
-<!-- KEYS -->
-<div id="keysPage" class="hidden">
-<h1 class="text-3xl mb-6">Key Generator</h1>
-
-<div class="card p-6">
-<button onclick="createKey()" class="bg-purple-600 px-6 py-2 rounded mb-4">Generate Key</button>
-<p id="newKey" class="text-green-400"></p>
 </div>
 
 </div>
@@ -92,105 +112,96 @@ body { background: #050a14; }
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
-  authDomain: "woahgen-602ae.firebaseapp.com",
-  projectId: "woahgen-602ae",
-};
+const app = initializeApp({
+  apiKey:"AIzaSy...",
+  authDomain:"woahgen-602ae.firebaseapp.com",
+  projectId:"woahgen-602ae"
+});
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 let currentUser = null;
 
-// AUTH CHECK
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return window.location.href = "login.html";
+// AUTH
+onAuthStateChanged(auth, async (user)=>{
+  if(!user) return location.href="login.html";
+
+  // 🚫 BLOCK ADMIN FROM USER DASH
+  if(user.email==="pattonayinde27@gmail.com"){
+    return location.href="admin-dashboard.html";
+  }
 
   currentUser = user;
 
-  // ADMIN CHECK
-  if (user.email === "pattonayinde27@gmail.com") {
-    document.getElementById("adminSection").classList.remove("hidden");
-  }
-
-  // CHECK IF USER HAS KEY
-  const userDoc = await getDoc(doc(db, "users", user.uid));
-  if (userDoc.exists() && userDoc.data().unlocked) {
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(snap.exists() && snap.data().unlocked){
     unlockUI();
   }
 });
 
 // NAV
-window.showPage = function(page) {
-  ["dashboard","generator","stock","keys"].forEach(p=>{
-    document.getElementById(p+"Page").classList.add("hidden");
+window.showPage = (p)=>{
+  ["dashboard","generator"].forEach(x=>{
+    document.getElementById(x+"Page").classList.add("hidden");
   });
-  document.getElementById(page+"Page").classList.remove("hidden");
+  document.getElementById(p+"Page").classList.remove("hidden");
 };
 
-// KEY REDEEM
-window.redeemKey = async function() {
+// KEY
+window.redeemKey = async ()=>{
   let key = document.getElementById("keyInput").value;
 
-  const keyDoc = await getDoc(doc(db, "keys", key));
+  const ref = doc(db,"keys",key);
+  const snap = await getDoc(ref);
 
-  if (!keyDoc.exists() || keyDoc.data().used) {
-    return alert("Invalid or used key");
+  if(!snap.exists() || snap.data().used){
+    return alert("Invalid key");
   }
 
-  // mark key used
-  await setDoc(doc(db, "keys", key), { used: true });
-
-  // unlock user
-  await setDoc(doc(db, "users", currentUser.uid), { unlocked: true });
+  await setDoc(ref,{used:true});
+  await setDoc(doc(db,"users",currentUser.uid),{unlocked:true});
 
   unlockUI();
 };
 
-function unlockUI() {
+function unlockUI(){
   document.getElementById("lockedBox").classList.add("hidden");
   document.getElementById("genBox").classList.remove("hidden");
+
+  document.getElementById("statusText").innerText = "Unlocked";
+  document.getElementById("statusText").classList.remove("text-red-400");
+  document.getElementById("statusText").classList.add("text-green-400");
 }
 
-// CREATE KEY (ADMIN)
-window.createKey = async function() {
-  let key = "WOAH-GEN-" + Math.floor(1000 + Math.random() * 9000);
+// GENERATE (FIREBASE STOCK)
+window.generate = async ()=>{
+  let type = document.getElementById("stockType").value;
 
-  await setDoc(doc(db, "keys", key), {
-    used: false
+  const ref = doc(db,"stock","main");
+  const snap = await getDoc(ref);
+
+  if(!snap.exists()) return alert("No stock");
+
+  let data = snap.data()[type] || [];
+  if(data.length === 0) return alert("Out of stock");
+
+  let acc = data.shift();
+
+  await setDoc(ref,{
+    ...snap.data(),
+    [type]: data
   });
 
-  document.getElementById("newKey").innerText = key;
-};
-
-// STOCK
-window.addStock = function() {
-  let data = document.getElementById("stockInput").value;
-  localStorage.setItem("stock", data);
-  alert("Stock saved");
-};
-
-// GENERATE
-window.generate = function() {
-  let stock = localStorage.getItem("stock");
-  if (!stock) return alert("No stock");
-
-  let lines = stock.split("\n");
-  let acc = lines.shift();
-
-  localStorage.setItem("stock", lines.join("\n"));
   document.getElementById("output").innerText = acc;
 };
 
 // LOGOUT
-window.logout = function() {
-  localStorage.clear();
-  location.href = "login.html";
+window.logout = ()=>{
+  signOut(auth).then(()=>location.href="login.html");
 };
 </script>
 
