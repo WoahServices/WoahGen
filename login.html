@@ -7,16 +7,13 @@
 
 <style>
 body {
-  background: radial-gradient(circle at top, #0b0f1a, #000);
+  background: #070b14;
   overflow: hidden;
 }
 
-.glow {
-  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
-}
-
-.woah-text {
-  font-size: 40px;
+/* glow logo */
+.logo {
+  font-size: 38px;
   font-weight: 900;
   background: linear-gradient(90deg, #00ccff, #00ff88);
   -webkit-background-clip: text;
@@ -27,6 +24,14 @@ body {
     0 0 40px #00ff88;
 }
 
+/* glass card */
+.card {
+  background: rgba(17,24,39,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* matrix */
 canvas {
   position: fixed;
   top: 0;
@@ -38,19 +43,20 @@ canvas {
 
 <body class="flex items-center justify-center h-screen text-white">
 
+<!-- MATRIX -->
 <canvas id="matrix"></canvas>
 
-<div class="bg-[#111827]/90 backdrop-blur p-8 rounded-xl w-96 shadow-lg border border-green-500/20">
+<!-- LOGIN BOX -->
+<div class="card p-8 rounded-2xl w-96 shadow-lg">
 
-<h1 class="woah-text text-center mb-4">Woah AltGen</h1>
-
-<h2 class="text-xl font-bold mb-6 text-center glow">Login</h2>
+<h1 class="logo text-center mb-4">WOAH SERVICES</h1>
+<h2 class="text-xl text-center mb-6">Login</h2>
 
 <input id="email" type="text" placeholder="Email"
-class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
+class="w-full p-3 mb-4 bg-black/50 rounded outline-none">
 
 <input id="password" type="password" placeholder="Password"
-class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
+class="w-full p-3 mb-4 bg-black/50 rounded outline-none">
 
 <button onclick="login()"
 class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded hover:scale-105 transition">
@@ -58,43 +64,43 @@ Login
 </button>
 
 <div class="mt-4 flex gap-2">
-
 <button onclick="window.location.href='signup.html'"
 class="w-1/2 bg-green-500 p-2 rounded hover:scale-105 transition">
 Sign Up
 </button>
 
-<!-- ADMIN BUTTON (HIDDEN UNTIL EMAIL MATCHES) -->
-<button id="adminBtn"
-onclick="window.location.href='admin.html'"
-class="w-1/2 bg-purple-600 p-2 rounded hover:scale-105 transition hidden">
+<button onclick="window.location.href='admin.html'"
+class="w-1/2 bg-purple-600 p-2 rounded hover:scale-105 transition">
 Admin
 </button>
-
 </div>
 
 </div>
 
-<!-- LOGIN SCRIPT -->
 <script>
+
+// SET DEFAULT ADMIN PASSWORD
+if (!localStorage.getItem("adminPass")) {
+  localStorage.setItem("adminPass", "woahadmin123");
+}
+
 function login() {
   let email = document.getElementById("email").value;
   let password = document.getElementById("password").value;
 
-  let user = JSON.parse(localStorage.getItem(email));
+  let adminPass = localStorage.getItem("adminPass");
 
-  // 👑 ADMIN LOGIN (ONLY YOU)
-  if (
-    email === "pattonayinde27@gmail.com" &&
-    password === "woah$admin2327!"
-  ) {
+  // ADMIN LOGIN
+  if (email === "pattonayinde27@gmail.com" && password === adminPass) {
     localStorage.setItem("admin", "true");
     localStorage.removeItem("loggedIn");
     window.location.href = "dashboard.html";
     return;
   }
 
-  // 👤 NORMAL USER LOGIN
+  // USER LOGIN
+  let user = JSON.parse(localStorage.getItem(email));
+
   if (user && user.password === password) {
     localStorage.setItem("loggedIn", email);
     localStorage.removeItem("admin");
@@ -104,17 +110,9 @@ function login() {
   }
 }
 
-// 👁️ SHOW ADMIN BUTTON ONLY IF YOUR EMAIL IS TYPED
-document.getElementById("email").addEventListener("input", function() {
-  if (this.value === "pattonayinde27@gmail.com") {
-    document.getElementById("adminBtn").classList.remove("hidden");
-  } else {
-    document.getElementById("adminBtn").classList.add("hidden");
-  }
-});
 </script>
 
-<!-- MATRIX RAIN -->
+<!-- MATRIX EFFECT -->
 <script>
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
@@ -125,10 +123,9 @@ canvas.height = window.innerHeight;
 const letters = "01WOAH";
 const fontSize = 14;
 const columns = canvas.width / fontSize;
-
 const drops = [];
 
-for (let x = 0; x < columns; x++) drops[x] = 1;
+for (let i = 0; i < columns; i++) drops[i] = 1;
 
 function draw() {
   ctx.fillStyle = "rgba(0,0,0,0.05)";
@@ -138,17 +135,17 @@ function draw() {
   ctx.font = fontSize + "px monospace";
 
   for (let i = 0; i < drops.length; i++) {
-    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+    let text = letters[Math.floor(Math.random() * letters.length)];
     ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.97)
       drops[i] = 0;
 
     drops[i]++;
   }
 }
 
-setInterval(draw, 33);
+setInterval(draw, 30);
 </script>
 
 </body>
