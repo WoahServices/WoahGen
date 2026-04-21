@@ -73,13 +73,27 @@ body {
 
 <!-- LOCK -->
 <div id="lockedBox">
-<p class="text-gray-400 mb-3">Enter key to unlock</p>
 
-<input id="keyInput" class="w-full p-3 bg-black rounded mb-3">
+<p class="text-gray-400 mb-3 text-center">🔒 Generator Locked</p>
 
-<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded">
-Unlock
+<!-- 💳 BUY BUTTON -->
+<a href="https://woahservices.mysellauth.com/" target="_blank">
+  <button class="w-full bg-yellow-500 text-black font-bold p-2 rounded mb-3 hover:scale-105 transition">
+    💳 Buy Key
+  </button>
+</a>
+
+<!-- KEY INPUT -->
+<input id="keyInput" placeholder="Enter your key..." class="w-full p-3 bg-black rounded mb-3">
+
+<button onclick="redeemKey()" class="w-full bg-purple-600 p-2 rounded hover:scale-105 transition">
+Unlock Generator
 </button>
+
+<p class="text-xs text-gray-500 mt-2 text-center">
+Purchase a key to unlock generator access
+</p>
+
 </div>
 
 <!-- GEN -->
