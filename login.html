@@ -41,7 +41,7 @@ canvas {
 <input id="email" placeholder="Email" class="w-full p-3 mb-3 bg-black/50 rounded">
 <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 bg-black/50 rounded">
 
-<button onclick="login()" class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded">
+<button id="loginBtn" onclick="login()" class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded">
 Login
 </button>
 
@@ -64,48 +64,61 @@ const app = initializeApp({
 
 const auth = getAuth(app);
 
-// ✅ PREVENT MULTIPLE REDIRECTS
-let redirected = false;
+let loading = false;
 
-// AUTO REDIRECT
+// ✅ AUTO LOGIN (ONLY ON PAGE LOAD)
 onAuthStateChanged(auth, (user)=>{
-  if(user && !redirected){
-    redirected = true;
-
+  if(user){
     if(user.email === "pattonayinde27@gmail.com"){
-      window.location.href = "admin-dashboard.html";
+      window.location.replace("admin-dashboard.html");
     } else {
-      window.location.href = "dashboard.html";
+      window.location.replace("dashboard.html");
     }
   }
 });
 
-// LOGIN
+// 🔐 LOGIN
 window.login = async function(){
+
+  if(loading) return;
+  loading = true;
+
+  const btn = document.getElementById("loginBtn");
+  btn.innerText = "Logging in...";
+
   let email = document.getElementById("email").value.trim().toLowerCase();
   let pass = document.getElementById("password").value.trim();
 
   if(!email || !pass){
     alert("Fill all fields");
+    reset();
     return;
   }
 
   try {
     let res = await signInWithEmailAndPassword(auth,email,pass);
 
+    // 🚀 SINGLE REDIRECT (NO LOOP)
     if(res.user.email === "pattonayinde27@gmail.com"){
-      window.location.href = "admin-dashboard.html";
+      window.location.replace("admin-dashboard.html");
     } else {
-      window.location.href = "dashboard.html";
+      window.location.replace("dashboard.html");
     }
 
   } catch (err) {
-    alert("Login failed");
+    alert(err.message);
+    reset();
   }
 };
+
+// RESET BUTTON
+function reset(){
+  loading = false;
+  document.getElementById("loginBtn").innerText = "Login";
+}
 </script>
 
-<!-- MATRIX EFFECT -->
+<!-- MATRIX -->
 <script>
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
