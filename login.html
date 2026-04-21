@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login - WoahGen</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+  background: radial-gradient(circle at top, #0b0f1a, #000);
+}
+.glow {
+  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+}
+</style>
+</head>
+
+<body class="flex items-center justify-center h-screen text-white">
+
+<div class="bg-[#111827] p-8 rounded-xl w-96 shadow-lg border border-green-500/20">
+
+<h1 class="text-2xl font-bold mb-6 text-center glow">WoahGen Login</h1>
+
+<input id="email" type="text" placeholder="Email"
+class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
+
+<input id="password" type="password" placeholder="Password"
+class="w-full p-3 mb-4 bg-[#0b0f1a] rounded outline-none">
+
+<button onclick="login()"
+class="w-full bg-gradient-to-r from-blue-500 to-green-400 p-3 rounded">
+Login
+</button>
+
+<p class="text-sm text-gray-400 mt-4 text-center">
+No account? <a href="signup.html" class="text-green-400">Sign up</a>
+</p>
+
+<p class="text-sm text-center mt-2">
+<a href="admin.html" class="text-purple-400">Admin Login</a>
+</p>
+
+</div>
+
+<script>
+function login() {
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+
+  let user = JSON.parse(localStorage.getItem(email));
+
+  if (user && user.password === password) {
+    localStorage.setItem("loggedIn", email);
+    window.location.href = "dashboard.html";
+  } else {
+    alert("Invalid login");
+  }
+}
+</script>
+
+</body>
+</html>
