@@ -38,10 +38,8 @@ canvas {
 
 <body class="flex items-center justify-center h-screen text-white">
 
-<!-- MATRIX -->
 <canvas id="matrix"></canvas>
 
-<!-- BOX -->
 <div class="bg-[#111827]/90 backdrop-blur p-8 rounded-xl w-96 shadow-lg border border-green-500/20">
 
 <h1 class="woah-text text-center mb-4">WOAH SERVICES</h1>
@@ -66,25 +64,42 @@ Already have an account?
 
 </div>
 
-<!-- SIGNUP SCRIPT -->
-<script>
-function signup() {
+<!-- 🔥 FIREBASE SIGNUP -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDfxC5dTsrIUZsutHZhsbWnN9hLnmITB2o",
+  authDomain: "woahgen-602ae.firebaseapp.com",
+  projectId: "woahgen-602ae",
+  storageBucket: "woahgen-602ae.firebasestorage.app",
+  messagingSenderId: "484403134603",
+  appId: "1:484403134603:web:177a61bacc055f4077d48e",
+  measurementId: "G-JC2NL3JS69"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// SIGNUP FUNCTION
+window.signup = async function () {
+
   let email = document.getElementById("email").value.trim().toLowerCase();
   let password = document.getElementById("password").value.trim();
 
-  // 🚫 block admin email
   if (email === "pattonayinde27@gmail.com") {
     alert("This email is reserved.");
     return;
   }
 
-  // ✅ validation
   if (!email || !password) {
     alert("Fill all fields");
     return;
   }
 
-  if (!email.includes("@") || email.length < 5) {
+  if (!email.includes("@")) {
     alert("Enter a valid email");
     return;
   }
@@ -94,28 +109,19 @@ function signup() {
     return;
   }
 
-  if (localStorage.getItem(email)) {
-    alert("Account already exists");
-    return;
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("Account created!");
+    window.location.href = "login.html";
+  } catch (err) {
+    alert(err.message);
   }
 
-  // 💾 SAVE FULL USER STRUCTURE (IMPORTANT FOR DASHBOARD)
-  const userData = {
-    password: password,
-    plan: "FREE",
-    tokens: 0,
-    generated: 0,
-    created: Date.now()
-  };
+};
 
-  localStorage.setItem(email, JSON.stringify(userData));
-
-  alert("Account created!");
-  window.location.href = "login.html";
-}
 </script>
 
-<!-- MATRIX SCRIPT -->
+<!-- MATRIX -->
 <script>
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
@@ -129,7 +135,7 @@ const columns = canvas.width / fontSize;
 
 const drops = [];
 
-for (let x = 0; x < columns; x++) drops[x] = 1;
+for (let i = 0; i < columns; i++) drops[i] = 1;
 
 function draw() {
   ctx.fillStyle = "rgba(0,0,0,0.05)";
@@ -139,17 +145,17 @@ function draw() {
   ctx.font = fontSize + "px monospace";
 
   for (let i = 0; i < drops.length; i++) {
-    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+    let text = letters[Math.floor(Math.random() * letters.length)];
     ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.97)
       drops[i] = 0;
 
     drops[i]++;
   }
 }
 
-setInterval(draw, 33);
+setInterval(draw, 30);
 </script>
 
 </body>
