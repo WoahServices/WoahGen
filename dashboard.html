@@ -9,18 +9,13 @@
 body {
   background: radial-gradient(circle at top, #0b0f1a, #000);
 }
-
 .sidebar {
   background: rgba(7,13,24,0.9);
-  backdrop-filter: blur(10px);
 }
-
 .card {
   background: rgba(17,24,39,0.85);
-  backdrop-filter: blur(12px);
   border-radius: 16px;
 }
-
 .logo {
   font-size: 22px;
   font-weight: 900;
@@ -68,7 +63,7 @@ body {
 </div>
 
 <div class="card p-5">
-<p class="text-gray-400 text-sm">Access</p>
+<p class="text-gray-400 text-sm">Plan</p>
 <p id="accessType" class="text-purple-400">FREE</p>
 </div>
 
@@ -142,7 +137,7 @@ const db = getFirestore(app);
 
 let currentUser = null;
 
-// ✅ FIXED AUTH (NO LOOP)
+// AUTH
 onAuthStateChanged(auth, async (user)=>{
   if(!user){
     return location.href = "login.html";
@@ -153,13 +148,12 @@ onAuthStateChanged(auth, async (user)=>{
   }
 
   currentUser = user;
-
   document.getElementById("userEmail").innerText = user.email;
 
   const ref = doc(db,"users",user.uid);
   const snap = await getDoc(ref);
 
-  if(snap.exists() && snap.data().unlocked){
+  if(snap.exists() && snap.data().plan === "premium"){
     unlockUI();
   }
 });
@@ -172,40 +166,59 @@ window.showPage = (p)=>{
   document.getElementById(p+"Page").classList.remove("hidden");
 };
 
-// 🔑 REDEEM FIXED
+// 🔑 REAL SaaS KEY SYSTEM
 window.redeemKey = async ()=>{
   let key = document.getElementById("keyInput").value.trim().toUpperCase();
 
-  const ref = doc(db,"keys",key);
-  const snap = await getDoc(ref);
-
-  if(!snap.exists() || snap.data().used){
-    return alert("Invalid or used key");
+  if(!key.startsWith("WOAH-GEN-")){
+    return alert("Invalid key format");
   }
 
-  await updateDoc(ref,{used:true});
+  const keyRef = doc(db,"keys",key);
+  const keySnap = await getDoc(keyRef);
+
+  if(!keySnap.exists()){
+    return alert("Key not found");
+  }
+
+  if(keySnap.data().used){
+    return alert("Key already used");
+  }
+
+  await updateDoc(keyRef,{
+    used:true,
+    usedBy: currentUser.uid
+  });
 
   await setDoc(doc(db,"users",currentUser.uid),{
-    unlocked:true
+    plan:"premium",
+    activatedAt: Date.now()
   },{merge:true});
 
   unlockUI();
 };
 
-// 🔓 UI
+// UI
 function unlockUI(){
   document.getElementById("lockedBox").classList.add("hidden");
   document.getElementById("genBox").classList.remove("hidden");
 
   document.getElementById("statusText").innerText = "Unlocked";
-  document.getElementById("statusText").classList.remove("text-red-400");
-  document.getElementById("statusText").classList.add("text-green-400");
+  document.getElementById("statusText").classList.replace("text-red-400","text-green-400");
 
   document.getElementById("accessType").innerText = "PREMIUM";
 }
 
-// ⚡ GENERATOR
+// GENERATOR (LOCKED TO PLAN)
 window.generate = async ()=>{
+
+  const userRef = doc(db,"users",currentUser.uid);
+  const userSnap = await getDoc(userRef);
+
+  if(!userSnap.exists() || userSnap.data().plan !== "premium"){
+    return alert("You need a valid key");
+  }
+
   let type = document.getElementById("stockType").value;
 
   const ref = doc(db,"stock","main");
